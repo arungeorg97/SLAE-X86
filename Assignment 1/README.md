@@ -1,8 +1,8 @@
-Assignment 1
+**Assignment 1**
 
 Shellcode for TCP Bind Shell witha cutom wrapper script for dynamic port choosing
 
-Introduction
+**Introduction**
 
 	Bind shell is a type of shell in which the target machine opens up a communication port or a listener on the victim machine and waits for an incoming connection. The attacker then connects to the victim machine’s listener which then leads to code or command execution on the server.
 
@@ -12,17 +12,17 @@ Introduction
 	https://resources.infosecinstitute.com/icmp-reverse-shell/#gref
 
 
-Methodology
+**Methodology**
 
 	Its noted that it would be easier to analyse a tcp_bind shell implemented using a high level program like c to see whats going on under the hood and replicate the functions/ sys calls using nasm.
 
 		Overall summary of whats happening under the hood 
-			Creates a socket
-			Binds the socket to an IP address and port
-			Listens for incoming connections
-			Accept an incoming connection
-			Redirects STDIN, STDOUT and STDERR to the socket once a connection is made
-			Executes a shell
+			-**Creates a socket**
+			-**Binds the socket to an IP address and port**
+			-Listens for incoming connections
+			-Accept an incoming connection
+			-Redirects STDIN, STDOUT and STDERR to the socket once a connection is made
+			-Executes a shell
 
 
 		NASM intro
