@@ -222,7 +222,7 @@ Methodology
         		ECX contains address location to sockfiledescriptor ,0 ,0			
 
 
-    Redirect STDIN, STDOUT and STDERR to the socket once a connection is made
+    	Redirect STDIN, STDOUT and STDERR to the socket once a connection is made
        			
        		Redirect/Duplicate stdin,stdout,stderr to the socket process	
 
@@ -240,18 +240,18 @@ Methodology
     		 mov ebx,eax   # file descrptor for accepted socket
         	 xor ecx,ecx   #0,stdin
 
-             mov al,0x3f   #63 dup2 sys call
-             int 0x80
+             	mov al,0x3f   #63 dup2 sys call
+             	int 0x80
 
-             inc ecx       #1,stdout
-             mov al,0x3f
-             int 0x80
+             	inc ecx       #1,stdout
+             	mov al,0x3f
+             	int 0x80
 
-             inc ecx       #2,stderr
-             mov al,0x3f
-             int 0x80
+             	inc ecx       #2,stderr
+             	mov al,0x3f
+             	int 0x80
 
-            EAX = 0x3f , ie 63 dup2
+            	EAX = 0x3f , ie 63 dup2
             	toor@ubuntu:~/Desktop/slae/Assignments/1$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 63
 				      #define __NR_dup2                63
 				      @int dup2(int oldfd, int newfd);
@@ -262,7 +262,7 @@ Methodology
 			       ECX = 0,1 and 2 to represent stdin ,stdout and stderr
 
 
-    Executes a shell	
+    	Executes a shell	
 
     		This executes the program referred to by pathname. Here /bin/sh is executed.It could be /bin/sh or /bin/bash or /bin/rsh etc
     			
