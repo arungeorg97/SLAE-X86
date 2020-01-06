@@ -90,7 +90,7 @@ Methodology
 
 		Binds the socket to an IP address and port
 				
-        After a socket is created "sock" socket descriptor is binded to all interfaces and a particular port ,here 4444
+        		After a socket is created "sock" socket descriptor is binded to all interfaces and a particular port ,here 4444
 
 				bind(sock, (struct sockaddr *) &addr, sizeof(addr));
 
@@ -204,10 +204,10 @@ Methodology
        				nothing is filled in; in this case, addrlen is not used, and should
        				also be NULL.
 
-       NASM
+       		NASM
 
-       	    xor esi,esi
-            push esi     ;addrelen 0   since peer info is not needed
+       	    		xor esi,esi
+            		push esi     ;addrelen 0   since peer info is not needed
         		push esi     ;sockaddr *addr 0
         		push edi     ;sock fd
         		mov ecx,esp
