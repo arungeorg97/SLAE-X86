@@ -31,7 +31,7 @@ Methodology
 
 
 
-			Create a socket 
+		Create a socket 
 					A new socket is created sockdescritptor here is "sock" for internet protocol,tcp and ipv4
 
 
@@ -60,12 +60,12 @@ Methodology
         		
         		EAX contains syscall number 0x66 ie 102
         		toor@ubuntu:~/Desktop/slae/Assignments/1$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 102
-				#define __NR_socketcall         102
+				    #define __NR_socketcall         102
 
-				#int socketcall(int call, unsigned long *args);
+				    #int socketcall(int call, unsigned long *args);
 
-				From http://man7.org/linux/man-pages/man2/socketcall.2.html, we have 
-					call              Man page
+				    From http://man7.org/linux/man-pages/man2/socketcall.2.html, we have 
+					   call              Man page
        				SYS_SOCKET        socket(2)
        				SYS_BIND          bind(2)
        				SYS_CONNECT       connect(2)
@@ -83,13 +83,14 @@ Methodology
        				#define SOCK_STREAM	1		/* stream (connection) socket	*/
        				#define AF_INET		2	/* Internet IP Protocol 	*/
 
-       			ECX contains the address location to these arguments 
+       			  ECX contains the address location to these arguments 
 
 
 
 
-			Binds the socket to an IP address and port
-				After a socket is created "sock" socket descriptor is binded to all interfaces and a particular port ,here 4444
+		Binds the socket to an IP address and port
+				
+        After a socket is created "sock" socket descriptor is binded to all interfaces and a particular port ,here 4444
 
 				bind(sock, (struct sockaddr *) &addr, sizeof(addr));
 
@@ -154,7 +155,7 @@ Methodology
 
 
 
-			Listens for incoming connections
+		Listens for incoming connections
 
 			once a socket is created and binded to a particular port ,it awaits for an incomming connections ie listen mode
 
@@ -185,8 +186,9 @@ Methodology
         		 		
 
 
-			Accepting the connection
-			Syscall to accept the incomming connection.On success, these system calls return a nonnegative integer that is a
+		Accepting the connection
+		
+    	Syscall to accept the incomming connection.On success, these system calls return a nonnegative integer that is a
        		file descriptor for the accepted socket
 
 				int fd = accept(sock, NULL, NULL);
@@ -202,10 +204,10 @@ Methodology
        				nothing is filled in; in this case, addrlen is not used, and should
        				also be NULL.
 
-       		NASM
+       NASM
 
-       			xor esi,esi
-        		push esi     ;addrelen 0   since peer info is not needed
+       	    xor esi,esi
+            push esi     ;addrelen 0   since peer info is not needed
         		push esi     ;sockaddr *addr 0
         		push edi     ;sock fd
         		mov ecx,esp
@@ -220,7 +222,7 @@ Methodology
         		ECX contains address location to sockfiledescriptor ,0 ,0			
 
 
-       		Redirect STDIN, STDOUT and STDERR to the socket once a connection is made
+    Redirect STDIN, STDOUT and STDERR to the socket once a connection is made
        			
        		Redirect/Duplicate stdin,stdout,stderr to the socket process	
 
@@ -251,16 +253,16 @@ Methodology
 
             EAX = 0x3f , ie 63 dup2
             	toor@ubuntu:~/Desktop/slae/Assignments/1$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 63
-				#define __NR_dup2                63
-				@int dup2(int oldfd, int newfd);
+				      #define __NR_dup2                63
+				      @int dup2(int oldfd, int newfd);
 
-			EBX , new sockfd .On accept() call success, this system call return a nonnegative integer that is a
+			       EBX , new sockfd .On accept() call success, this system call return a nonnegative integer that is a
        				file descriptor for the accepted socket
 
-			ECX = 0,1 and 2 to represent stdin ,stdout and stderr
+			       ECX = 0,1 and 2 to represent stdin ,stdout and stderr
 
 
-    	Executes a shell	
+    Executes a shell	
 
     		This executes the program referred to by pathname. Here /bin/sh is executed.It could be /bin/sh or /bin/bash or /bin/rsh etc
     			
