@@ -1,8 +1,7 @@
 **Assignment 6**
 
-Polymorphic Linux Shellcode
- 
-For this Assignment, we have to create polymorphic shellcode of   3 common shellcodes from shell-storm.org.
+Polymorphic Linux Shellcode 
+For this Assignment, we have to create polymorphic shellcode of  3 common shellcodes from shell-storm.org.
 
 	Goal is to change the bits around ,add some junk instructions and trim off unnecassary instruction but keep the original functionality intact.
 
