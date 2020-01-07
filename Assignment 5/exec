@@ -1,0 +1,255 @@
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ msfvenom -p linux/x86/exec --list-options                                                             [8/1992]
+Options for payload/linux/x86/exec:
+=========================
+
+
+       Name: Linux Execute Command
+     Module: payload/linux/x86/exec
+   Platform: Linux
+       Arch: x86
+Needs Admin: No
+ Total size: 36
+       Rank: Normal
+
+Provided by:
+    vlad902 <vlad902@gmail.com>
+
+Basic options:
+Name  Current Setting  Required  Description
+----  ---------------  --------  -----------
+CMD                    yes       The command string to execute
+
+Description:
+  Execute an arbitrary command
+
+
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ msfvenom -p linux/x86/exec CMD=whoami -f c
+[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+[-] No arch selected, selecting arch: x86 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 42 bytes
+Final size of c file: 201 bytes
+unsigned char buf[] =
+"\x6a\x0b\x58\x99\x52\x66\x68\x2d\x63\x89\xe7\x68\x2f\x73\x68"
+"\x00\x68\x2f\x62\x69\x6e\x89\xe3\x52\xe8\x07\x00\x00\x00\x77"
+"\x68\x6f\x61\x6d\x69\x00\x57\x53\x89\xe1\xcd\x80";
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$
+
+
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ cat shellcodetest.c
+#include<stdio.h>
+#include<string.h>
+
+unsigned char code[] = \
+"\x6a\x0b\x58\x99\x52\x66\x68\x2d\x63\x89\xe7\x68\x2f\x73\x68"
+"\x00\x68\x2f\x62\x69\x6e\x89\xe3\x52\xe8\x07\x00\x00\x00\x77"
+"\x68\x6f\x61\x6d\x69\x00\x57\x53\x89\xe1\xcd\x80";
+
+int main(void)
+{
+
+        printf("shellcode length: %d\n",strlen(code));
+        (*(void(*)()) code)();
+}
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ gcc -fno-stack-protector -z execstack shellcodetest.c -o shellcode
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ ./shellcode
+shellcode length: 15
+toor
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$
+
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ echo -ne "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x63\x89\xe7\x68\x2f\x73\x68\x00\x68\x2f\x62\x69\x6e\x89\xe3\x52\xe8
+\x07\x00\x00\x00\x77\x68\x6f\x61\x6d\x69\x00\x57\x53\x89\xe1\xcd\x80" | ndisasm -u - | awk '{print $3,$4,$5,$6}'
+
+#to get the shellcode
+
+Breakpoint 1, 0x0804a040 in code ()
+gdb-peda$ disassemble
+Dump of assembler code for function code:
+=> 0x0804a040 <+0>:     push   0xb
+   0x0804a042 <+2>:     pop    eax
+   0x0804a043 <+3>:     cdq
+   0x0804a044 <+4>:     push   edx
+   0x0804a045 <+5>:     pushw  0x632d
+   0x0804a049 <+9>:     mov    edi,esp
+   0x0804a04b <+11>:    push   0x68732f
+   0x0804a050 <+16>:    push   0x6e69622f
+   0x0804a055 <+21>:    mov    ebx,esp
+   0x0804a057 <+23>:    push   edx
+   0x0804a058 <+24>:    call   0x804a064 <code+36>
+   0x0804a05d <+29>:    ja     0x804a0c7
+   0x0804a05f <+31>:    outs   dx,DWORD PTR ds:[esi]
+   0x0804a060 <+32>:    popa
+   0x0804a061 <+33>:    ins    DWORD PTR es:[edi],dx
+   0x0804a062 <+34>:    imul   eax,DWORD PTR [eax],0xe1895357
+   0x0804a068 <+40>:    int    0x80  (1)
+   0x0804a06a <+42>:    add    BYTE PTR [eax],al
+End of assembler dump.
+gdb-peda$
+
+Lets break at the syscall
+
+
+[----------------------------------registers-----------------------------------]
+EAX: 0xb ('\x0b')
+EBX: 0xbffff72e ("/bin/sh")
+ECX: 0xbffff71e --> 0xbffff72e ("/bin/sh")
+EDX: 0x0
+ESI: 0x0
+EDI: 0xbffff736 --> 0x632d ('-c')
+EBP: 0xbffff768 --> 0x0
+ESP: 0xbffff71e --> 0xbffff72e ("/bin/sh")
+EIP: 0x804a068 --> 0x80cd
+EFLAGS: 0x282 (carry parity adjust zero SIGN trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+   0x804a060 <code+32>: popa
+   0x804a061 <code+33>: ins    DWORD PTR es:[edi],dx
+   0x804a062 <code+34>: imul   eax,DWORD PTR [eax],0xe1895357
+=> 0x804a068 <code+40>: int    0x80
+   0x804a06a <code+42>: add    BYTE PTR [eax],al
+   0x804a06c <completed.6159>:  add    BYTE PTR [eax],al
+   0x804a06e:   add    BYTE PTR [eax],al
+   0x804a070 <dtor_idx.6161>:   add    BYTE PTR [eax],al
+[------------------------------------stack-------------------------------------]
+0000| 0xbffff71e --> 0xbffff72e ("/bin/sh")
+0004| 0xbffff722 --> 0xbffff736 --> 0x632d ('-c')
+0008| 0xbffff726 --> 0x804a05d ("whoami")
+0012| 0xbffff72a --> 0x0
+0016| 0xbffff72e ("/bin/sh")
+0020| 0xbffff732 --> 0x68732f ('/sh')
+0024| 0xbffff736 --> 0x632d ('-c')
+0028| 0xbffff73a --> 0x84290000
+[------------------------------------------------------------------------------]
+Legend: code, data, rodata, value
+
+Breakpoint 2, 0x0804a068 in code ()
+gdb-peda$ x/8xb 0xbffff72e
+0xbffff72e:     0x2f    0x62    0x69    0x6e    0x2f    0x73    0x68    0x00
+gdb-peda$ x/4xb 0xbffff71e
+0xbffff71e:     0x2e    0xf7    0xff    0xbf
+gdb-peda$ x/4xb 0xbffff72e
+0xbffff72e:     0x2f    0x62    0x69    0x6e
+
+Legend: code, data, rodata, value
+
+EAX has 0xb , ie 11 .. execve syscall
+toor@ubuntu:/usr/include/i386-linux-gnu/sys$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 11
+#define __NR_execve              11
+
+execve - execute program
+
+int execve(const char *filename, char *const argv[], char *const envp[]);
+
+ebx , program to execute 
+gdb-peda$ x/8xb 0xbffff72e
+0xbffff72e:     0x2f    0x62    0x69    0x6e    0x2f    0x73    0x68    0x00     , /bin/sh
+
+ecx , argument list
+gdb-peda$ x/20xb 0xbffff71e
+0xbffff71e:     0x2e    0xf7    0xff    0xbf    0x36    0xf7    0xff    0xbf
+0xbffff726:     0x5d    0xa0    0x04    0x08    0x00    0x00    0x00    0x00
+0xbffff72e:     0x2f    0x62    0x69    0x6e
+gdb-peda$
+
+Argument memory addresses
+
+	1)0x2e    0xf7    0xff    0xbf  , 0xbffff72ec
+	gdb-peda$ x/8xb 0xbffff72e
+	0xbffff72e:     0x2f    0x62    0x69    0x6e    0x2f    0x73    0x68    0x00     , /bin/sh
+
+	2)0x36    0xf7    0xff    0xbf
+	gdb-peda$ x/4xb 0xbffff736
+	0xbffff736:     0x2d    0x63    0x00    0x00 ,  -c in reverse
+	>>> "632d".decode("hex")
+	'c-'
+	>>>
+
+	3)0x804a05d
+	gdb-peda$ x/8xb 0x804a05d
+	0x804a05d <code+29>:    0x77    0x68    0x6f    0x61    0x6d    0x69    0x00    0x57
+	>>> "696d616f6877".decode("hex")
+	'imaohw'
+	>>>
+
+-------------------------------------------------------------------------------------------------------------------------
+
+gdb-peda$ disassemble
+Dump of assembler code for function code:
+=> 0x0804a040 <+0>:     push   0xb            ,  pushing 0x11 for execve syscall
+   0x0804a042 <+2>:     pop    eax
+   0x0804a043 <+3>:     cdq                   ; The CDQ (Convert Doubleword to Quadword) instruction extends the sign bit of EAX into the EDX register. edx is made 0
+   0x0804a044 <+4>:     push   edx            ;a null to the stack
+   0x0804a045 <+5>:     pushw  0x632d         ;-c in reverse 
+   0x0804a049 <+9>:     mov    edi,esp        ;
+   0x0804a04b <+11>:    push   0x68732f       ; push /bin/sh on to the stack in reverse 
+   0x0804a050 <+16>:    push   0x6e69622f
+   0x0804a055 <+21>:    mov    ebx,esp        ; reference to the above string
+   0x0804a057 <+23>:    push   edx            ;null to the stack  
+   0x0804a058 <+24>:    call   0x804a064 <code+36>
+   0x0804a05d <+29>:    ja     0x804a0c7
+   0x0804a05f <+31>:    outs   dx,DWORD PTR ds:[esi]
+   0x0804a060 <+32>:    popa
+   0x0804a061 <+33>:    ins    DWORD PTR es:[edi],dx
+   0x0804a062 <+34>:    imul   eax,DWORD PTR [eax],0xe1895357
+   0x0804a068 <+40>:    int    0x80
+   0x0804a06a <+42>:    add    BYTE PTR [eax],al
+End of assembler dump.
+
+
+User input
+
+toor@ubuntu:/usr/include/i386-linux-gnu/sys$ echo -ne "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x63\x89\xe7\x68\x2f\x73\x68\x00\x68\x2f\x62\x69\x6e\x89\xe3\x52\xe8\x07\x00\x00\x00\x77\x68\x6f\x61\x6d\x69\x00\x57\x53\x89\xe1\xcd\x80" | ndisasm -u -
+00000000  6A0B              push byte +0xb
+00000002  58                pop eax
+00000003  99                cdq
+00000004  52                push edx
+00000005  66682D63          push word 0x632d
+00000009  89E7              mov edi,esp
+0000000B  682F736800        push dword 0x68732f
+00000010  682F62696E        push dword 0x6e69622f
+00000015  89E3              mov ebx,esp
+00000017  52                push edx
+00000018  E807000000        call dword 0x24
+0000001D  7768              ja 0x87
+0000001F  6F                outsd
+00000020  61                popad
+00000021  6D                insd
+00000022  6900575389E1      imul eax,[eax],dword 0xe1895357
+00000028  CD80              int 0x80
+
+
+
+After examining the next few commands I identified what appears to be the CALL-JMP-POP format of instructions which suggests that the opcode would be interupted as HEX versus assembly. In this case the name of the test file that I provided
+
+00000018  E807000000        call dword 0x24
+0000001D  7768      wh        ja 0x87
+0000001F  6F         o       outsd
+00000020  61         a      popad
+00000021  6D         m       insd
+00000022  6900575389E1      imul eax,[eax],dword 0xe1895357
+          i
+
+[----------------------------------registers-----------------------------------]
+EAX: 0xb ('\x0b')
+EBX: 0xbffff72e ("/bin/sh")
+ECX: 0x0
+EDX: 0x0
+ESI: 0x0
+EDI: 0xbffff736 --> 0x632d ('-c')
+EBP: 0xbffff768 --> 0x0
+ESP: 0xbffff726 --> 0x804a05d ("whoami")
+EIP: 0x804a064 --> 0xe1895357
+EFLAGS: 0x282 (carry parity adjust zero SIGN trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+=> 0x804a064 <code+36>: push   edi
+   0x804a065 <code+37>: push   ebx
+   0x804a066 <code+38>: mov    ecx,esp
+   0x804a068 <code+40>: int    0x80
+[------------------------------------stack-------------------------------------]
+0000| 0xbffff726 --> 0x804a05d ("whoami")
+0004| 0xbffff72a --> 0x0
+0008| 0xbffff72e ("/bin/sh")
+0012| 0xbffff732 --> 0x68732f ('/sh')
+0016| 0xbffff736 --> 0x632d ('-c')
+0020| 0xbffff73a --> 0x84290000
+0024| 0xbffff73e --> 0x85000804
+0028| 0xbffff742 --> 0xf0804

