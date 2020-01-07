@@ -24,14 +24,10 @@ Custom encoder and decoder for bin/sh shellcode
 		Each byte is Xor ed with 0xbb
 		NOT operation on each bytes
 		Each byte is incremented by 1
-
-
-
-
-	EncoderScript.py	
+	
 
 	Following script takes the shellcode and perform the above mentioned encoding operation for each byte.
-
+		EncoderScript.py
 		#!/bin/python3
 
 		import socket
