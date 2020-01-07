@@ -1,6 +1,6 @@
 **Assignment 4**
 
-	Analyze 3 msfvenom payloads and see whats going on under the hood
+	Analyze 3 msfvenom payloads and see whats going on under the hood.
 
 **Introduction**
 
