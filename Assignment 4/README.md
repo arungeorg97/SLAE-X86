@@ -1,6 +1,6 @@
 **Assignment 4**
 
-Shellcode for Custom encoder and decoder for bin/sh shellcode
+Custom encoder and decoder for bin/sh shellcode
 
 **Introduction**
 
