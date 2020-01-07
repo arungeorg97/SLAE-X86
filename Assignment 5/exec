@@ -281,3 +281,10 @@ EFLAGS: 0x282 (carry parity adjust zero SIGN trap INTERRUPT direction overflow)
 0020| 0xbffff73a --> 0x84290000
 0024| 0xbffff73e --> 0x85000804
 0028| 0xbffff742 --> 0xf0804
+
+
+This blog post has been created for completing the requirements of the SecurityTube Linux Assembly Expert certification: http://securitytube-training.com/online-courses/securitytube-linux-assembly-expert/
+
+Student ID: SLAE-1509
+
+arun.georg97@gmail.com
