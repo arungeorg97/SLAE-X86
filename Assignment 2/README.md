@@ -1,8 +1,8 @@
-Assignment 2
+**Assignment 2**
 
 Shellcode for Reverse TCP Shell with a cutom wrapper script for dynamic port and IP of choosing
 
-Introduction
+**Introduction**
 
 	A reverse shell is a type of shell in which the target machine communicates back to the attacking machine. The attacking machine has a listener port on which it receives the connection, which by using, code or command execution is achieved
 
@@ -11,7 +11,7 @@ Introduction
 
   The difference between bind and reverse from a  programtic perspective is that  we are iniating a connection from the target host to the listener .so listen() and accept() calls are out.
 
-Methodology
+**Methodology**
 
 	Its noted that it would be easier to analyse a reverse_tcp shell implemented using a high level program like c to see whats going on under the hood and replicate the functions / sys calls using nasm.
 
