@@ -113,16 +113,19 @@
 
 **Practical**
 
-Egg is 0x41414141 , the shellcode to be executed
+Egg is 0x41414141 , the shellcode to be executed is of "/bin/sh -c ifconfig"
 
 	toor@ubuntu:~/Desktop/slae/Assignments/3$ ./compile.sh egg
  	Assembling with nasm
 	Success, Now Linking
 	Go Ahead, may the force be with you
+	toor@ubuntu:~/Desktop/slae/Assignments/3$
+	
+	Extracting Shellcode using objdump
 	toor@ubuntu:~/Desktop/slae/Assignments/3$ objdump -d ./egg|grep '[0-9a-f]:'|grep -v 'file'|cut -f2 -d:|cut -f1-6 -d' '|tr -s ' '|tr '\t' ' '|sed 's/ $//g'|sed 's/ /\\x/g'|paste -d '' -s |sed 's/^/"/'|sed 's/$/"/g'
 		"\x31\xc9\xf7\xe1\x31\xdb\x31\xf6\x66\x81\xca\xff\x0f\x42\x31\xc0\xbf\x41\x41\x41\x41\xb0\x21\x8d\x5a\x08\xcd\x80\x3c\xf2\x74\xe8\x3b\x3a\x75\xe9\x3b\x7a\x04\x75\xe4\x8d\x72\x08\xff\xe6"
 
-
+	Copy pasting shell code to C wrapper Program.
 	toor@ubuntu:~/Desktop/slae/Assignments/3$ nano poc.c
 	toor@ubuntu:~/Desktop/slae/Assignments/3$ gcc -fno-stack-protector -z execstack poc.c -o shellcode
 	toor@ubuntu:~/Desktop/slae/Assignments/3$ ./shellcode
@@ -148,7 +151,7 @@ Egg is 0x41414141 , the shellcode to be executed
 
 	toor@ubuntu:~/Desktop/slae/Assignments/3$
 
-
+	Works like a charm
 
 
 **Github Repo**
