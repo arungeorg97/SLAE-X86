@@ -118,6 +118,7 @@ Refer:https://pypi.org/project/pycrypto/
 			toor@ubuntu:~/Desktop/slae/Assignments/7$
 			
 	Running shellcode in a python script.This is a good read
+	
 		http://hacktracking.blogspot.com/2015/05/execute-shellcode-in-python.html
 
 
