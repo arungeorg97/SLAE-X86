@@ -7,7 +7,7 @@ For this Assignment, we have to create polymorphic shellcode of  3 common shellc
 	Goal is to change the bits around ,add some junk instructions and trim off unnecassary instruction but keep the original functionality intact.
 
 
-**Methadology**
+**Methodology**
 
 	Following Shellcodes are considered for polymorphism
 
