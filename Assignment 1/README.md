@@ -337,6 +337,7 @@ A simple compile script is used to compile and link .asm file , once successfull
 
   	Since the port 4444 is harcoded in the script we have to create a custom shellcode with customisable portnumber.
   	Script logic is user port number input is converted to network byte order and swapped with 4444 representation.
+	Refer: portbuilder.py
 
 
 **Github Repo**
