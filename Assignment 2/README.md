@@ -267,6 +267,7 @@ Using objdump to extract shellcode
 
 	Script logic is user port number and the ip  input is converted to network byte order and swapped with 4444 and 192.168.230.169 representation.
 
+	Refer:port_ip_builder.py
 
 **Github Repo**
 
