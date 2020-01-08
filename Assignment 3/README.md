@@ -42,14 +42,13 @@
 			*pathname will be the addresslocation of the page we want to check
 			The mode specifies the accessibility check(s) to be performed, and is either the value F_OK, or a mask consisting of the bitwise OR of one or more of R_OK, W_OK, and X_OK. F_OK tests.
 
-	Incase of a access deny , and EFAULT will be returned ie (14)
+	Incase of an access deny  , and EFAULT will be returned ie (14)
 
-
-
-	Our egg would be 0x41414141 and the egghunter will look for 0x41414141 + "/bin/bash -c ifconfig" shellcode through the memory.once found code will jump onto /bin/sh shellcode
+	Our egg would be "0x41414141" and the egghunter will look for 0x4141414141414141 + "/bin/bash -c ifconfig" shellcode through the memory.Once the double egg is found, the control will be shifted  onto /bin/sh shellcode location
 
 	8bytes 0x4141414141414141 is considered because we dont wanna match the egghunter shellcode itself
-
+	
+	Assembly Code
 
 		global _start
 
@@ -87,7 +86,7 @@
         		int 0x80                	#access call to check if the page is accessible
         		cmp al,0xf2
 
-        							#after the function call eax contains the return value , in case of 		EFAULT (bad address) the value we are looking for is 14 , ie  cat /usr/include/asm-generic/errno-base.h
+        							#after the function call eax contains the return value , in case of 		EFAULT (bad address) the value we are looking for is 14 , Refer: cat /usr/include/asm-generic/errno-base.h
 
         							Since this is an error code it will actually be returned as a negative 14 thus in hex we get back 0xfffffff2  #2s compliment	
 
