@@ -6,7 +6,7 @@ For this last SLAE assignment, I’ve created a shellcode crypter using the DES 
 
 Refer:https://pypi.org/project/pycrypto/
 
-**Methadology**
+**Methodology**
 
 	>Cryptor 
 
