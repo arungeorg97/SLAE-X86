@@ -9,7 +9,7 @@ Custom encoder and decoder for bin/sh shellcode
 	The encoder itself doesn’t provide any real security however since the obfuscation scheme is built into the code and is therefore reversible by anyone who has access to the encoded shellcode. This should not be confused with encryption, where security is based on the key and not the secrecy of the encryption scheme
 
 
-**Methadology**
+**Methodology**
 
 	Following is the Encoding schema being used in the order
 
