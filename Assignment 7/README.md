@@ -1,9 +1,12 @@
 **Assignment 7**
 
 Create a shellcode crypter
+
+A crypter is a type of software that can encrypt, obfuscate, and manipulate malware, to make it harder to detect by security programs.
  
 For this last SLAE assignment, I’ve created a shellcode crypter using the DES encryption using the pyCrypto library in python
-	pyCrypto library is a collection of both secure hash functions (such as SHA256 and RIPEMD160), and various encryption algorithms (AES, DES, RSA, ElGamal, etc.)
+	
+pyCrypto library is a collection of both secure hash functions (such as SHA256 and RIPEMD160), and various encryption algorithms (AES, DES, RSA, ElGamal, etc.)
 
 Refer:https://pypi.org/project/pycrypto/
 
