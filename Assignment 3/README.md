@@ -113,7 +113,7 @@
 
 **Practical**
 
-Egg is 0x41414141 , the shellcode to be executed is of "/bin/sh -c ifconfig"
+Egg is 0x41414141 , the shellcode to be executed is of "/bin/bash -c ifconfig"
 
 	toor@ubuntu:~/Desktop/slae/Assignments/3$ ./compile.sh egg
  	Assembling with nasm
