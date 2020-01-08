@@ -2,7 +2,8 @@
 
 Create a shellcode crypter
  
-For this last SLAE assignment, I’ve created a shellcode crypter using the DES encryption using the pyCrypto library
+For this last SLAE assignment, I’ve created a shellcode crypter using the DES encryption using the pyCrypto library in python
+	pyCrypto library is a collection of both secure hash functions (such as SHA256 and RIPEMD160), and various encryption algorithms (AES, DES, RSA, ElGamal, etc.)
 
 Refer:https://pypi.org/project/pycrypto/
 
