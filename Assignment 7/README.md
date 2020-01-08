@@ -116,6 +116,9 @@ Refer:https://pypi.org/project/pycrypto/
 			run = cast(addr, CFUNCTYPE(c_void_p))
 			run()
 			toor@ubuntu:~/Desktop/slae/Assignments/7$
+			
+	Running shellcode in a python script.This is a good read
+		http://hacktracking.blogspot.com/2015/05/execute-shellcode-in-python.html
 
 
 **Practical**
